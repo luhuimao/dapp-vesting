@@ -7,6 +7,7 @@
     "@pefish/js-node-assist": "^1.0.1",
     "@pefish/js-util-httprequest": "^0.2.0",
     "@pefish/js-util-time": "^0.1.1",
+    "@progress/kendo-react-dateinputs": "^4.10.0",
     "@walletconnect/web3-provider": "^1.2.2",
     "antd": "^4.6.6",
     "clipboard": "^2.0.6",

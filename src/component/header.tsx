@@ -27,7 +27,7 @@ export default class Header extends React.Component<{
       }}>
         <Link to={"/home"}>
           <div className="click-div">
-            <span>币工具</span>
+            <span>VESTING DEMO</span>
           </div>
         </Link>
         <div style={{
@@ -72,7 +72,9 @@ export default class Header extends React.Component<{
             marginRight: 10
           }} onClick={() => {
             this.props.homeStore!.inviteLinkModalVisible = true
-          }}><span>邀请返佣</span></div>
+          }}>
+            {/* <span>邀请返佣</span> */}
+            </div>
           {
             this.props.commonStore!.user && this.props.commonStore!.vipInfo && this.props.commonStore!.isVipValid
               ?
@@ -80,11 +82,15 @@ export default class Header extends React.Component<{
                 color: "red"
               }}>{this.props.commonStore!.vipInfo!.type_ === "1" ? "上帝" : "普通会员"}</span></div>
               :
-              <div className="click-div"><span style={{
+              <div className="click-div">
+                <span style={{
                 color: "red"
-              }} onClick={() => {
-                this.props.homeStore!.becomeVipModalVisible = true
-              }}>成为会员</span></div>
+                }} onClick={() => {
+                // this.props.homeStore!.becomeVipModalVisible = true
+                }}>
+                  {/* 成为会员 */}
+                </span>
+              </div>
           }
         </div>
         <Modal

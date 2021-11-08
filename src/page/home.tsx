@@ -11,6 +11,7 @@ import CommonStore from '../store/common_store';
 
 import Footer from '../component/footer';
 import Header from '../component/header';
+import { DateTimePicker } from "@progress/kendo-react-dateinputs";
 
 const { Sider } = Layout;
 
@@ -29,9 +30,47 @@ export default class Home extends React.Component<{
       return (
         <div className="menu-content">
           <div>
+            <form>
+              <ul>
+                <li>  <label>
+                  DEPOSIT:
+                  <input type="text" name="name" />
+                </label>
+                </li>
+                <li>   <label>
+                  TOKENADDRESS:
+                  <input type="text" name="name" />
+                </label></li>
+                <li>
+                  <label>
+                    STARTTIME:<DateTimePicker />
+                  </label>
+                </li>
+                <li>
+
+                  <label>
+                    STOPTIME:
+                    <DateTimePicker />
+                  </label>
+                </li>
+                <li>
+                  <label>
+                    ERC721ADDRESS:
+                    <input type="text" name="name" />
+                  </label>
+                </li>
+                <li>
+                  <label>
+                    TOKENID:
+                    <input type="text" name="name" />
+                  </label>
+                </li>
+              </ul>
+              <input type="submit" value="Submit" />
+            </form>
             <Button type={`primary`} onClick={async () => {
               await this.props.homeStore!.requestBaidu()
-            }}>请求百度</Button>
+            }}>Create</Button>
           </div>
           <div style={{
             display: `flex`,
@@ -51,6 +90,10 @@ export default class Home extends React.Component<{
       return (
         <div className="menu-content">test2</div>
       )
+    } else if (this.props.homeStore!.selectedMenu === "test3") {
+      return (
+        <div className="menu-content">test3</div>
+      )
     } else {
       return (
         <div className="menu-content">nothing</div>
@@ -62,7 +105,7 @@ export default class Home extends React.Component<{
   render() {
     return (
       <div className="app">
-        <Header/>
+        <Header />
         <div className="content">
           <div className="left-space" style={{
             flex: this.props.homeStore!.isWeb ? 1 : 0
@@ -89,7 +132,7 @@ export default class Home extends React.Component<{
                     color: "#009a61",
                     marginLeft: 10,
                     fontSize: 28
-                  }}>币工具</span>
+                  }}>VESTING DEMO</span>
                 </div>
               </div>
               <Layout className="all-menu-content">
@@ -115,7 +158,13 @@ export default class Home extends React.Component<{
                     this.props.homeStore!.setSelectedMemu(e.key as string)
                   }}>
                     <Menu.Item key="test1" icon={<ToolOutlined />}>
-                      代币一键生成
+                      Create Stream
+                    </Menu.Item>
+                    <Menu.Item key="test3" icon={<ToolOutlined />}>
+                      Balance
+                    </Menu.Item>
+                    <Menu.Item key="test2" icon={<ToolOutlined />}>
+                      Withdraw
                     </Menu.Item>
                   </Menu>
                 </Sider>

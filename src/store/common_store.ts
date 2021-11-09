@@ -25,16 +25,18 @@ export default class CommonStore {
   @observable public userBalance: string = "0"
   @observable public rebateRate: string = "0"  // 普通佣金比例。10%，这里就是10
   @observable public vipRebateRate: string = "0"
-
+  @observable public userTestNFTBalance: string = "0"
   private web3Provider?: any
   private web3Instance?: Web3
   private coinToolsContractInstance?: Contract
   private ethWallet: EthWallet = new EthWallet()
+  private vestingContractInstance?: Contract
+  private testNFTContractInstance?: Contract
 
   // 用作没连接到钱包之前的访问
   private publicProvider = new Web3.providers.HttpProvider(config.rpcUrl)
   private web3PublicInstance: Web3 = new Web3(this.publicProvider)
-  private coinToolsPublicContractInstance?: Contract = new this.web3PublicInstance.eth.Contract(config.coinToolContractAbi, config.coinToolContractAddress);
+  // private coinToolsPublicContractInstance?: Contract = new this.web3PublicInstance.eth.Contract(config.coinToolContractAbi, config.coinToolContractAddress);
 
   private invitorAddress: string = Util.getQueryVariable("invitor")
   private timerStatus: boolean = false
@@ -89,12 +91,17 @@ export default class CommonStore {
     this.user = accounts[0]
     console.log("获取到用户:", this.user)
     this.web3Instance = new Web3(this.web3Provider as any)
-    this.coinToolsContractInstance = new this.web3Instance!.eth.Contract(config.coinToolContractAbi, config.coinToolContractAddress);
+    // this.coinToolsContractInstance = new this.web3Instance!.eth.Contract(config.coinToolContractAbi, config.coinToolContractAddress);
+    this.vestingContractInstance = new this.web3Instance!.eth.Contract(
+      config.vestingContractABI, config.vestingContractAddressRINKEBY);
+    this.testNFTContractInstance = new this.web3Instance!.eth.Contract(
+      config.testNFTContractABI,
+      config.testNFTContractAddressRINKEBY);
     await this.afterConnectWalletSuccess()
   }
 
   private async loop() {
-    
+
   }
 
   // 钱包登陆后做什么
@@ -113,43 +120,53 @@ export default class CommonStore {
         }), 18)
       })(),
       (async () => {
-        // 查询会员是否可用
-        console.log("查询会员是否可用。。。")
-        this.isVipValid = await Util.timeoutWrapperCall(async () => {
-          return await this.coinToolsContractInstance!.methods.isVipValid(this.user).call({
-            from: this.user,
-          })
-        })
+        // 取余额
+        console.log("取NFT余额。。。")
+        this.userTestNFTBalance = await Util.timeoutWrapperCall(async () => {
+          return await this.testNFTContractInstance!.methods.balanceOf(this.user).
+            call({
+              from: this.user,
+            })
+        });
       })(),
-      (async () => {
-        // 查询佣金比例
-        console.log("查询佣金比例。。。")
-        const rebateRate_ = await Util.timeoutWrapperCall(async () => {
-          return await this.coinToolsContractInstance!.methods.nomarlRebateRate().call({
-            from: this.user,
-          })
-        })
-        this.rebateRate = StringUtil.div_(rebateRate_.toString(), 100)
-        
-      })(),
-      (async () => {
-        console.log("查询会员佣金比例。。。")
-        const vipRebateRate_ = await Util.timeoutWrapperCall(async () => {
-          return await this.coinToolsContractInstance!.methods.monthVipRebateRate().call({
-            from: this.user,
-          })
-        })
-        this.vipRebateRate = StringUtil.div_(vipRebateRate_.toString(), 100)
-      })(),
-      (async () => {
-        // 查询会员信息
-        console.log("请求会员信息。。。")
-        this.vipInfo = await Util.timeoutWrapperCall(async () => {
-          return await this.coinToolsContractInstance!.methods.vips(this.user).call({
-            from: this.user,
-          })
-        })
-      })(),
+      // (async () => {
+      //   // 查询会员是否可用
+      //   console.log("查询会员是否可用。。。")
+      //   this.isVipValid = await Util.timeoutWrapperCall(async () => {
+      //     return await this.coinToolsContractInstance!.methods.isVipValid(this.user).call({
+      //       from: this.user,
+      //     })
+      //   })
+      // })(),
+      // (async () => {
+      //   // 查询佣金比例
+      //   console.log("查询佣金比例。。。")
+      //   const rebateRate_ = await Util.timeoutWrapperCall(async () => {
+      //     return await this.coinToolsContractInstance!.methods.nomarlRebateRate().call({
+      //       from: this.user,
+      //     })
+      //   })
+      //   this.rebateRate = StringUtil.div_(rebateRate_.toString(), 100)
+
+      // })(),
+      // (async () => {
+      //   console.log("查询会员佣金比例。。。")
+      //   const vipRebateRate_ = await Util.timeoutWrapperCall(async () => {
+      //     return await this.coinToolsContractInstance!.methods.monthVipRebateRate().call({
+      //       from: this.user,
+      //     })
+      //   })
+      //   this.vipRebateRate = StringUtil.div_(vipRebateRate_.toString(), 100)
+      // })(),
+      // (async () => {
+      //   // 查询会员信息
+      //   console.log("请求会员信息。。。")
+      //   this.vipInfo = await Util.timeoutWrapperCall(async () => {
+      //     return await this.coinToolsContractInstance!.methods.vips(this.user).call({
+      //       from: this.user,
+      //     })
+      //   })
+      // })(),
     ])
   }
 
@@ -203,8 +220,86 @@ export default class CommonStore {
     // 进入主页需要加载的东西
 
     // 获取所有工具
-    this.tools = await this.coinToolsPublicContractInstance!.methods.getTools(0, 0).call()
-    console.log("tools", this.tools)
+    // this.tools = await this.coinToolsPublicContractInstance!.methods.getTools(0, 0).call()
+    // console.log("tools", this.tools)
+  }
+
+  async createStream(
+    depositAmount: any,
+    tokenAddr: string,
+    streamStartTime: any,
+    streamStopTime: any,
+    erc721Addr: string,
+    tokenId: any) {
+    if (!this.user) {
+      Modal.error({
+        content: "请先连接钱包！！！"
+      })
+      return
+    }
+
+    try {
+      const result = await this.vestingContractInstance?.methods.createString(
+        depositAmount,
+        tokenAddr,
+        streamStartTime,
+        streamStopTime,
+        erc721Addr,
+        tokenId
+      ).send({
+        from: this.user,
+      })  // 直到确认了才会返回
+      console.log("result", result)
+      Modal.success({
+        content: "stream created！！！"
+      })
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  async getTestNFTBalance() {
+    if (!this.user) {
+      Modal.error({
+        content: "请先连接钱包！！！"
+      })
+      return
+    }
+    return await this.testNFTContractInstance!.methods.balanceOf(this.user).
+      call({
+        from: this.user,
+      })
+  }
+
+  async getUserTokenIds() {
+    const balance = await this.testNFTContractInstance!.methods.balanceOf(this.user).
+      call({
+        from: this.user,
+      });
+    let ids
+  }
+
+  async mintTestNFT() {
+    if (!this.user) {
+      Modal.error({
+        content: "请先连接钱包！！！"
+      })
+      return
+    }
+
+    try {
+      const result = await this.testNFTContractInstance?.methods.mint(
+        1
+      ).send({
+        from: this.user,
+      })  // 直到确认了才会返回
+      console.log("result", result)
+      Modal.success({
+        content: "Minted！！！"
+      })
+    } catch (err) {
+      console.log(err)
+    }
   }
 
   @withGlobalLoading()
@@ -254,7 +349,7 @@ export default class CommonStore {
         console.log(err)
       }
     }
-    
+
 
   }
 }

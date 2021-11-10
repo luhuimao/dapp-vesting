@@ -36,17 +36,18 @@ export default class Header extends React.Component<{
         }}>
           <div className="click-div" style={{
             marginRight: 10
-          }}><span onClick={
-            this.props.commonStore!.user
-              ?
-              () => {
-                window.open(`https://etherscan.io/address/${this.props.commonStore!.user}`, "_blank")
-              }
-              :
-              async () => {
-                await this.props.commonStore?.walletConnect()
-              }
-          }>{
+          }}>
+            <span onClick={
+              this.props.commonStore!.user
+                ?
+                () => {
+                  window.open(`https://etherscan.io/address/${this.props.commonStore!.user}`, "_blank")
+                }
+                :
+                async () => {
+                  await this.props.commonStore?.walletConnect()
+                }
+            }>{
                 this.props.commonStore!.user
                   ?
                   (
@@ -68,13 +69,11 @@ export default class Header extends React.Component<{
               :
               null
           }
-          <div className="click-div" style={{
+          <div className="" style={{
             marginRight: 10
-          }} onClick={() => {
-            this.props.homeStore!.inviteLinkModalVisible = true
-          }}>
-            {/* <span>邀请返佣</span> */}
-            </div>
+          }} ><span><p>Current Block TimeStamp:  &nbsp;&nbsp;
+            {this.props.commonStore!.currentBlockTime}</p></span>
+          </div>
           {
             this.props.commonStore!.user && this.props.commonStore!.vipInfo && this.props.commonStore!.isVipValid
               ?
@@ -84,9 +83,9 @@ export default class Header extends React.Component<{
               :
               <div className="click-div">
                 <span style={{
-                color: "red"
+                  color: "red"
                 }} onClick={() => {
-                // this.props.homeStore!.becomeVipModalVisible = true
+                  // this.props.homeStore!.becomeVipModalVisible = true
                 }}>
                   {/* 成为会员 */}
                 </span>

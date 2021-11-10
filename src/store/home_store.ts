@@ -16,7 +16,7 @@ export default class HomeStore {
   @observable
   public isWeb = this.isWebMatchMedia.matches
   @observable
-  public selectedMenu: string = "test1"
+  public selectedMenu: string = "create"
 
   @observable inviteLinkModalVisible: boolean = false
   @observable becomeVipModalVisible: boolean = false

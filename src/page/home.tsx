@@ -32,7 +32,13 @@ export default class Home extends React.Component<{
       STARTTIME: '',
       STOPTIME: '',
       ERC721ADDRESS: '',
-      TOKENID: ''
+      TOKENID: '',
+      StreamID: '',
+      WithdrawAmount: '',
+      Recipient: '',
+      SendTokenId: '',
+      CheckBalanceStreamID: '',
+      withdrawableBalance: ''
     }
 
     this.updateDepositInput = this.updateDepositInput.bind(this);
@@ -45,7 +51,6 @@ export default class Home extends React.Component<{
 
     // Extract the value of the input element represented by `target`
     var modifiedValue = event.target.value;
-    console.log(modifiedValue);
     // Update the customer object's first name
     tokenaddr = modifiedValue;
 
@@ -60,7 +65,6 @@ export default class Home extends React.Component<{
 
     // Extract the value of the input element represented by `target`
     var modifiedValue = event.target.value;
-    console.log(modifiedValue);
     // Update the customer object's first name
     deposit = modifiedValue;
 
@@ -76,7 +80,6 @@ export default class Home extends React.Component<{
 
     // Extract the value of the input element represented by `target`
     var modifiedValue = event.target.value;
-    console.log(modifiedValue);
     // Update the customer object's first name
     startTime = modifiedValue;
 
@@ -92,7 +95,6 @@ export default class Home extends React.Component<{
 
     // Extract the value of the input element represented by `target`
     var modifiedValue = event.target.value;
-    console.log(modifiedValue);
     // Update the customer object's first name
     stopTime = modifiedValue;
 
@@ -108,7 +110,6 @@ export default class Home extends React.Component<{
 
     // Extract the value of the input element represented by `target`
     var modifiedValue = event.target.value;
-    console.log(modifiedValue);
     // Update the customer object's first name
     erc721Addr = modifiedValue;
 
@@ -124,7 +125,6 @@ export default class Home extends React.Component<{
 
     // Extract the value of the input element represented by `target`
     var modifiedValue = event.target.value;
-    console.log(modifiedValue);
     // Update the customer object's first name
     tokenId = modifiedValue;
 
@@ -134,15 +134,94 @@ export default class Home extends React.Component<{
     });
   }
 
-  async handleCreateClick() {
-    console.log(this.state.DEPOSIT);
-    console.log(this.state.TOKENADDRESS);
-    console.log(this.state.STARTTIME);
-    console.log(this.state.STOPTIME);
-    console.log(this.state.ERC721ADDRESS);
-    console.log(this.state.TOKENID);
+  updateStreamIdInput(event) {
+    // Extract the current value of the customer from state
+    var streamID = this.state.StreamID;
 
-    await this.props.commonStore!.createStream(this.state.DEPOSIT,
+    // Extract the value of the input element represented by `target`
+    var modifiedValue = event.target.value;
+    // Update the customer object's first name
+    streamID = modifiedValue;
+
+    // Update the state object
+    this.setState({
+      StreamID: streamID
+    });
+  }
+
+  updateWithdrawAmount(event) {
+    // Extract the current value of the customer from state
+    var withdrawAmount = this.state.WithdrawAmount;
+
+    // Extract the value of the input element represented by `target`
+    var modifiedValue = event.target.value;
+    // Update the customer object's first name
+    withdrawAmount = modifiedValue;
+
+    // Update the state object
+    this.setState({
+      WithdrawAmount: withdrawAmount
+    });
+  }
+
+  updateRecipientInput(event) {
+    // Extract the current value of the customer from state
+    var recipient = this.state.Recipient;
+
+    // Extract the value of the input element represented by `target`
+    var modifiedValue = event.target.value;
+    // Update the customer object's first name
+    recipient = modifiedValue;
+
+    // Update the state object
+    this.setState({
+      Recipient: recipient
+    });
+  }
+
+  updateSendTokenIDInput(event) {
+    // Extract the current value of the customer from state
+    var sendTokenId = this.state.SendTokenId;
+
+    // Extract the value of the input element represented by `target`
+    var modifiedValue = event.target.value;
+    // Update the customer object's first name
+    sendTokenId = modifiedValue;
+
+    // Update the state object
+    this.setState({
+      SendTokenId: sendTokenId
+    });
+  }
+
+  updateCheckBalanceStreamIDInput(event) {
+    // Extract the current value of the customer from state
+    var checkBalanceStreamID = this.state.CheckBalanceStreamID;
+
+    // Extract the value of the input element represented by `target`
+    var modifiedValue = event.target.value;
+    // Update the customer object's first name
+    checkBalanceStreamID = modifiedValue;
+
+    // Update the state object
+    this.setState({
+      CheckBalanceStreamID: checkBalanceStreamID
+    });
+  }
+
+  async getAllowance() {
+    return await this.props.commonStore?.getAllowance(this.props.commonStore?.user);
+  }
+  async getBalance() {
+    const balance = await this.props.commonStore!.getWithdrawrableStreamBalance(this.state.CheckBalanceStreamID);
+    this.setState({
+      withdrawableBalance: balance
+    });
+  }
+
+  async handleCreateClick() {
+    await this.props.commonStore!.createStream(
+      this.state.DEPOSIT,
       this.state.TOKENADDRESS,
       this.state.STARTTIME,
       this.state.STOPTIME,
@@ -151,36 +230,49 @@ export default class Home extends React.Component<{
     );
   }
   selectMenuContent() {
-    if (this.props.homeStore!.selectedMenu === "test1") {
+    if (this.props.homeStore!.selectedMenu === "create") {
       return (
         <div className="menu-content">
           <div>
             <ul>
-              <li>  <label>
-                DEPOSIT:
+              <li>
+                <span>
+                  DEPOSIT:
+                </span>
                 <input type="text" onChange={this.updateDepositInput.bind(this)} name="name" />
-              </label>
               </li>
-              <li>   <label>
-                TOKENADDRESS:
-                <input type="text" onChange={this.updateTokenAddressInput.bind(this)} name="name" />
-              </label></li>
+            </ul>
+            <ul>
+              <li>
+                <label>
+                  TOKENADDRESS:
+                </label>
+                <input id="_tokenaddress" type="text" onChange={this.updateTokenAddressInput.bind(this)} name="name" />
+              </li>
+            </ul>
+            <ul>
               <li>
                 <label>
                   STARTTIME: <input type="text" onChange={this.updateStartTimeInput.bind(this)} name="name" />
                 </label>
               </li>
+            </ul>
+            <ul>
               <li>
                 <label>
                   STOPTIME: <input type="text" onChange={this.updateStopTimeInput.bind(this)} name="name" />
                 </label>
               </li>
+            </ul>
+            <ul>
               <li>
                 <label>
                   ERC721ADDRESS:
                   <input type="text" onChange={this.updateErc721AddressInput.bind(this)} name="name" />
                 </label>
               </li>
+            </ul>
+            <ul>
               <li>
                 <label>
                   TOKENID:
@@ -188,9 +280,25 @@ export default class Home extends React.Component<{
                 </label>
               </li>
             </ul>
-            <Button type={`primary`} onClick={async () => {
-              await this.handleCreateClick();
-            }}>Create</Button>
+            <div style={{
+              float: `left`,
+              display: `flex`,
+              marginLeft: '20px'
+            }}>
+              <Button disabled={this.props.commonStore?.approved} onClick={async () => {
+                await this.props.commonStore?.approveToVestingContract();
+              }}>Approve</Button>
+            </div>
+            <div style={{
+              float: `right`,
+              display: `flex`,
+              marginRight: '20px'
+            }}>
+              <Button type={`primary`} onClick={async () => {
+                await this.handleCreateClick();
+              }}>Create</Button>
+            </div>
+
           </div>
           {/* <div style={{
             display: `flex`,
@@ -206,15 +314,7 @@ export default class Home extends React.Component<{
           {/* </div> */}
         </div>
       )
-    } else if (this.props.homeStore!.selectedMenu === "test2") {
-      return (
-        <div className="menu-content">test2</div>
-      )
-    } else if (this.props.homeStore!.selectedMenu === "test3") {
-      return (
-        <div className="menu-content">test3</div>
-      )
-    } else if (this.props.homeStore!.selectedMenu === "test4") {
+    } else if (this.props.homeStore!.selectedMenu === "balance") {
       return (
         <div className="menu-content">
           <div style={{
@@ -222,23 +322,114 @@ export default class Home extends React.Component<{
             flexDirection: `column`,
             marginTop: 100
           }}>
-            <span>
-              TEST NFT Balance: {this.props.commonStore!.userTestNFTBalance}
-            </span>
-            <span>
-              TokenIDs: {this.props.commonStore!.userTestNFTTokenID}
-            </span>
+            <ul><li>
+              <span>
+                Test Token Balance: {
+                  this.props.commonStore!.userTestERC20Balance
+                }
+              </span>
+            </li></ul>
+            <ul><li>
+              <span>
+                TEST NFT Balance: {this.props.commonStore!.userTestNFTBalance}
+              </span>
+            </li></ul>
+            <ul><li>
+              <span>
+                TokenIDs: {this.props.commonStore!.userTestNFTTokenID}
+              </span>
+            </li></ul>
+            <ul><li>
+              StreamID: <input type="text" onChange={this.updateCheckBalanceStreamIDInput.bind(this)} name="name" />
+              <span>
+                Vesting Withdrawrable Balance: {this.state.withdrawableBalance}
+              </span>
+            </li></ul>
+            <Button type={`primary`} onClick={async () => {
+              await this.getBalance();
+            }}>Check Balance</Button>
+          </div>
+        </div>
+      )
+    } else if (this.props.homeStore!.selectedMenu === "withdraw") {
+      return (
+        <div className="menu-content">
+          <div style={{
+            display: `flex`,
+            flexDirection: `column`,
+            marginTop: 100
+          }}>
+            <div className="">
+              <div>
+                <ul>
+                  <li>
+                    <span>StreamID</span>
+                    <input type="text" onChange={this.updateStreamIdInput.bind(this)} name="name" />
+                  </li>
+                </ul>
+                <ul>
+                  <li>
+                    <span>Amount</span>
+                    <input type="text" onChange={this.updateWithdrawAmount.bind(this)} name="name" />
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <Button type={`primary`} onClick={() => {
+              this.props.commonStore!.withdraw(this.state.StreamID, this.state.WithdrawAmount);
+            }}>Withdraw</Button>
+          </div>
+        </div>
+      )
+    } else if (this.props.homeStore!.selectedMenu === "mint") {
+      return (
+        <div className="menu-content">
+          <div style={{
+            display: `flex`,
+            flexDirection: `column`,
+            marginTop: 100
+          }}>
             <Button type={`primary`} onClick={() => {
               this.props.commonStore!.mintTestNFT()
             }}>Mint</Button>
           </div>
-        </div>)
+        </div>
+      )
+    } else if (this.props.homeStore!.selectedMenu === "send") {
+      return (
+        <div className="menu-content">
+          <div style={{
+            display: `flex`,
+            flexDirection: `column`,
+            marginTop: 100
+          }}>
+            <div className="">
+              <div>
+                <ul>
+                  <li>
+                    <span>Recipient</span>
+                    <input type="text" onChange={this.updateRecipientInput.bind(this)} name="name" />
+                  </li>
+                </ul>
+                <ul>
+                  <li>
+                    <span>TokenID</span>
+                    <input type="text" onChange={this.updateSendTokenIDInput.bind(this)} name="name" />
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <Button type={`primary`} onClick={() => {
+              this.props.commonStore!.sendTestNFT(this.state.Recipient, this.state.SendTokenId)
+            }}>Send</Button>
+          </div>
+        </div>
+      )
     } else {
       return (
         <div className="menu-content">nothing</div>
       )
     }
-
   }
 
   render() {
@@ -296,17 +487,20 @@ export default class Home extends React.Component<{
                   }} onSelect={(e) => {
                     this.props.homeStore!.setSelectedMemu(e.key as string)
                   }}>
-                    <Menu.Item key="test1" icon={<ToolOutlined />}>
+                    <Menu.Item key="create" icon={<ToolOutlined />}>
                       Create Stream
                     </Menu.Item>
-                    <Menu.Item key="test2" icon={<ToolOutlined />}>
+                    <Menu.Item key="balance" icon={<ToolOutlined />}>
                       Balance
                     </Menu.Item>
-                    <Menu.Item key="test3" icon={<ToolOutlined />}>
+                    <Menu.Item key="withdraw" icon={<ToolOutlined />}>
                       Withdraw
                     </Menu.Item>
-                    <Menu.Item key="test4" icon={<ToolOutlined />}>
+                    <Menu.Item key="mint" icon={<ToolOutlined />}>
                       Mint TESTNFT
+                    </Menu.Item>
+                    <Menu.Item key="send" icon={<ToolOutlined />}>
+                      Send TESTNFT
                     </Menu.Item>
                   </Menu>
                 </Sider>

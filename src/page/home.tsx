@@ -225,6 +225,9 @@ export default class Home extends React.Component<{
             <span>
               TEST NFT Balance: {this.props.commonStore!.userTestNFTBalance}
             </span>
+            <span>
+              TokenIDs: {this.props.commonStore!.userTestNFTTokenID}
+            </span>
             <Button type={`primary`} onClick={() => {
               this.props.commonStore!.mintTestNFT()
             }}>Mint</Button>

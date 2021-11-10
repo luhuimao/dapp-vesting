@@ -26,6 +26,7 @@ export default class CommonStore {
   @observable public rebateRate: string = "0"  // 普通佣金比例。10%，这里就是10
   @observable public vipRebateRate: string = "0"
   @observable public userTestNFTBalance: string = "0"
+  @observable public userTestNFTTokenID: number[] = []
   private web3Provider?: any
   private web3Instance?: Web3
   private coinToolsContractInstance?: Contract
@@ -127,6 +128,13 @@ export default class CommonStore {
             call({
               from: this.user,
             })
+        });
+      })(),
+      (async () => {
+        // 取余额
+        console.log("取NFT TokenID。。。")
+        this.userTestNFTTokenID = await Util.timeoutWrapperCall(async () => {
+          return await this.getUserTokenIds();
         });
       })(),
       // (async () => {
@@ -249,6 +257,10 @@ export default class CommonStore {
       ).send({
         from: this.user,
       })  // 直到确认了才会返回
+      if(!result.gasPrice){
+        let rel1 = result.wait();
+        console.log(`stream create result: ${rel1}`);
+      }
       console.log("result", result)
       Modal.success({
         content: "stream created！！！"
@@ -276,7 +288,19 @@ export default class CommonStore {
       call({
         from: this.user,
       });
-    let ids
+    console.log(`NFT Balance: ${balance.toString()}`);
+    let ids: number[] = [];
+    try {
+      for (var i = 0; i < parseInt(balance); i++) {
+        let tokenid = await this.testNFTContractInstance!.methods.tokenOfOwnerByIndex(this.user, i).
+          call({
+            from: this.user,
+          });
+        console.log(`toenid: ${tokenid}`);
+        ids.push(parseInt(tokenid));
+      }
+      return ids;
+    } catch (err) { console.log(`err:${err}`) }
   }
 
   async mintTestNFT() {

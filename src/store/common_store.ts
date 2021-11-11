@@ -140,10 +140,7 @@ export default class CommonStore {
         // 取余额
         console.log("取NFT余额。。。")
         this.userTestNFTBalance = await Util.timeoutWrapperCall(async () => {
-          return await this.testNFTContractInstance!.methods.balanceOf(this.user).
-            call({
-              from: this.user,
-            })
+          return await this.testNFTContractInstance!.methods.balanceOf(this.user).call({ from: this.user, })
         });
       })(),
       (async () => {
@@ -422,10 +419,7 @@ export default class CommonStore {
       })
       return
     }
-    return await this.testNFTContractInstance!.methods.balanceOf(this.user).
-      call({
-        from: this.user,
-      })
+    return await this.testNFTContractInstance!.methods.balanceOf(this.user).call({ from: this.user, })
   }
 
   async getUserTokenIds() {

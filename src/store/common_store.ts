@@ -31,12 +31,26 @@ export default class CommonStore {
   @observable public userTestERC20Balance: string = "0"
   @observable public currentBlockTime: string = "0"
   @observable public approved: boolean = false;
+  @observable public approvedForVesting2: boolean = false;
+
   @observable public allowance: number = 0
+
+  @observable public stream1Sender: string = "0"
+  @observable public stream1Deposit: number = 0
+  @observable public stream1TokenAddress: string = "0"
+  @observable public stream1StartTime: string = "0"
+  @observable public stream1StopTime: string = "0"
+  @observable public stream1RemainingBalance: string = "0"
+  @observable public stream1RatePerSecond: string = "0"
+  @observable public stream1Erc721Address: string = "0"
+  @observable public stream1NftTotalSupply: string = "0"
+
   private web3Provider?: any
   private web3Instance?: Web3
   private coinToolsContractInstance?: Contract
   private ethWallet: EthWallet = new EthWallet()
-  private vestingContractInstance?: Contract
+  private vesting1ContractInstance?: Contract
+  private vesting2ContractInstance?: Contract
   private testNFTContractInstance?: Contract
   private testERC20ContractInstance?: Contract
 
@@ -99,8 +113,10 @@ export default class CommonStore {
     console.log("获取到用户:", this.user)
     this.web3Instance = new Web3(this.web3Provider as any)
     // this.coinToolsContractInstance = new this.web3Instance!.eth.Contract(config.coinToolContractAbi, config.coinToolContractAddress);
-    this.vestingContractInstance = new this.web3Instance!.eth.Contract(
-      config.vestingContractABI, config.vestingContractAddressRINKEBY);
+    this.vesting1ContractInstance = new this.web3Instance!.eth.Contract(
+      config.vesting1ContractABI, config.vesting1ContractAddressRINKEBY);
+    this.vesting2ContractInstance = new this.web3Instance!.eth.Contract(
+      config.vesting2ContractABI, config.vesting2ContractAddressRINKEBY);
     this.testNFTContractInstance = new this.web3Instance!.eth.Contract(
       config.testNFTContractABI,
       config.testNFTContractAddressRINKEBY);
@@ -172,6 +188,14 @@ export default class CommonStore {
           return (await this.getAllowance(this.user));
         });
         this.approved = this.allowance > 0 ? true : false;
+      })(),
+      (async () => {
+        // 取vesting2allowance
+        console.log("取vesting2allowance。。。")
+        const allowance = await Util.timeoutWrapperCall(async () => {
+          return (await this.getVesting2Allowance(this.user));
+        });
+        this.approvedForVesting2 = allowance > 0 ? true : false;
       })(),
       // (async () => {
       //   // 查询会员是否可用
@@ -274,7 +298,7 @@ export default class CommonStore {
     streamStartTime: any,
     streamStopTime: any,
     erc721Addr: string,
-    tokenId: any) {
+    nftTotalSupply: any) {
     if (!this.user) {
       Modal.error({
         content: "请先连接钱包！！！"
@@ -319,13 +343,13 @@ export default class CommonStore {
       return
     }
     try {
-      const result = await this.vestingContractInstance?.methods.createStream(
+      const result = await this.vesting1ContractInstance?.methods.createStream(
         depositAmount,
         tokenAddr,
         streamStartTime,
         streamStopTime,
         erc721Addr,
-        tokenId
+        nftTotalSupply
       ).send({
         from: this.user,
       })  // 直到确认了才会返回
@@ -338,7 +362,7 @@ export default class CommonStore {
 
       let latest_block = await this.web3Instance!.eth.getBlockNumber();
       let historical_block = latest_block - 100;
-      const data_events = await this.vestingContractInstance?.getPastEvents(
+      const data_events = await this.vesting1ContractInstance?.getPastEvents(
         'CreateStream', // change if your looking for a different event
         { fromBlock: historical_block, toBlock: 'latest' }
       );
@@ -350,13 +374,6 @@ export default class CommonStore {
         }
       }
 
-      // this.vestingContractInstance?.events.CreateStream({})
-      //   .on('data', async function (event) {
-      //     console.log(event.returnValues);
-      //     // Do something here
-      //   })
-      //   .on('error', console.error);
-
       Modal.success({
         content: "stream created！！！ streamID: " + streamid.toString()
       })
@@ -364,8 +381,96 @@ export default class CommonStore {
       console.log(err)
     }
   }
+  async createStream2(
+    depositAmount: any,
+    tokenAddr: string,
+    streamStartTime: any,
+    streamStopTime: any,
+    erc721Addr: string,
+    shares: any) {
+    if (!this.user) {
+      Modal.error({
+        content: "请先连接钱包！！！"
+      })
+      return
+    }
+    if (depositAmount <= 0) {
+      Modal.error({
+        content: "depositAmount must greater than 0!"
+      })
+      return
+    }
+    if (streamStartTime < (await this.web3Instance!.eth.getBlock("latest")).timestamp) {
+      Modal.error({
+        content: "streamStartTime must greater than current block timestamp!"
+      })
+      return
+    }
+    if (streamStartTime > streamStopTime) {
+      Modal.error({
+        content: "streamStopTime must greater than streamStartTime!"
+      })
+      return
+    }
+    const streamDuration = streamStopTime - streamStartTime;
+    if (depositAmount < streamDuration) {
+      Modal.error({
+        content: "depositAmount smaller than time streamDuration!"
+      })
+      return
+    }
+    if (depositAmount % streamDuration != 0) {
+      Modal.error({
+        content: "depositAmount not multiple of time delta!"
+      })
+      return
+    }
+    if (!this.approved) {
+      Modal.error({
+        content: "approve first!"
+      })
+      return
+    }
+    try {
+      const result = await this.vesting2ContractInstance?.methods.createStream2(
+        depositAmount,
+        tokenAddr,
+        streamStartTime,
+        streamStopTime,
+        erc721Addr,
+        shares
+      ).send({
+        from: this.user,
+      })  // 直到确认了才会返回
+      if (!result.gasPrice) {
+        // let rel1 = result.wait(1);
+        // console.log(`stream create result: ${result}`);
+      } else {
+        // console.log("result", result)
+      }
 
-  async withdraw(streamID: number, amount: number) {
+      let latest_block = await this.web3Instance!.eth.getBlockNumber();
+      let historical_block = latest_block - 100;
+      const data_events = await this.vesting2ContractInstance?.getPastEvents(
+        'CreateStream2', // change if your looking for a different event
+        { fromBlock: historical_block, toBlock: 'latest' }
+      );
+      let stream2id: number = 0;
+      if (data_events) {
+        for (var i = 0; i < data_events.length; i++) {
+          stream2id = data_events[i]['returnValues']['stream2Id'];
+          console.log(`stream2id: ${stream2id.toString()}`);
+        }
+      }
+
+      Modal.success({
+        content: "stream2 created！！！ stream2ID: " + stream2id.toString()
+      })
+    } catch (err) {
+      console.log(err)
+    }
+  }
+  async withdraw(streamID: number) {
     if (!this.user) {
       Modal.error({
         content: "请先连接钱包！！！"
@@ -373,31 +478,89 @@ export default class CommonStore {
       return
     }
     const balance = await this.getWithdrawrableStreamBalance(streamID);
-    if (amount <= 0) {
+    if (balance <= 0) {
       Modal.error({
-        content: "Error: amount is zero！！！"
+        content: "Error: balance is zero！！！"
       })
       return
     }
-    if (amount >= balance) {
-      Modal.error({
-        content: "amount exceeds the available balance！！！"
-      })
-      return
-    }
+    // if (amount >= balance) {
+    //   Modal.error({
+    //     content: "amount exceeds the available balance！！！"
+    //   })
+    //   return
+    // }
     try {
-      const rel = await this.vestingContractInstance?.methods.withdrawFromStream(streamID, amount).send({ from: this.user });
+      const rel = await this.vesting1ContractInstance?.methods.withdrawFromStream(streamID).send({ from: this.user });
       Modal.success({
         content: "withdraw succeed！！！"
       })
     } catch (err) {
+      console.log(err)
+    }
+  }
 
+  async senderWithdraw(streamID: number) {
+    if (!this.user) {
+      Modal.error({
+        content: "请先连接钱包！！！"
+      })
+      return
+    }
+    const balance = await this.getSenderWithdrawrableStream1Balance(streamID);
+    if (balance <= 0) {
+      Modal.error({
+        content: "Error: sender balance is zero！！！"
+      })
+      return
+    }
+    // if (amount >= balance) {
+    //   Modal.error({
+    //     content: "amount exceeds the available balance！！！"
+    //   })
+    //   return
+    // }
+    try {
+      const rel = await this.vesting1ContractInstance?.methods.senderWithdrawFromStream(streamID).send({ from: this.user });
+      Modal.success({
+        content: "sender withdraw succeed！！！"
+      })
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  async getStream1Info(streamID: number) {
+    if (!this.user) {
+      Modal.error({
+        content: "请先连接钱包！！！"
+      })
+      return
+    }
+    const balance = await this.getWithdrawrableStreamBalance(streamID);
+
+    try {
+      const rel = await this.vesting1ContractInstance?.methods.getStream(streamID).call({ from: this.user });
+      this.stream1Sender = rel.sender;
+      this.stream1Deposit = rel.deposit;
+      this.stream1TokenAddress = rel.tokenAddress;
+      this.stream1StartTime = rel.startTime;
+      this.stream1StopTime = rel.stopTime;
+      this.stream1RemainingBalance = rel.remainingBalance;
+      this.stream1RatePerSecond = rel.ratePerSecond;
+      this.stream1Erc721Address = rel.erc721Address;
+      this.stream1NftTotalSupply = rel.nftTotalSupply;
+      Modal.success({
+        content: "get Stream1Info succeed！！！"
+      })
+    } catch (err) {
+      console.log(err)
     }
   }
 
   async approveToVestingContract() {
     try {
-      await this.testERC20ContractInstance?.methods.approve(config.vestingContractAddressRINKEBY, '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff').send({ from: this.user });
+      await this.testERC20ContractInstance?.methods.approve(config.vesting1ContractAddressRINKEBY, '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff').send({ from: this.user });
       this.approved = true;
       Modal.success({
         content: "approved！！！"
@@ -409,7 +572,11 @@ export default class CommonStore {
   }
 
   async getAllowance(owner: string) {
-    return await this.testERC20ContractInstance?.methods.allowance(owner, config.vestingContractAddressRINKEBY).call({ from: this.user });
+    return await this.testERC20ContractInstance?.methods.allowance(owner, config.vesting1ContractAddressRINKEBY).call({ from: this.user });
+  }
+
+  async getVesting2Allowance(owner: string) {
+    return await this.testERC20ContractInstance?.methods.allowance(owner, config.vesting2ContractAddressRINKEBY).call({ from: this.user });
   }
 
   async getTestNFTBalance() {
@@ -422,6 +589,7 @@ export default class CommonStore {
     return await this.testNFTContractInstance!.methods.balanceOf(this.user).call({ from: this.user, })
   }
 
+
   async getUserTokenIds() {
     const balance = await this.testNFTContractInstance!.methods.balanceOf(this.user).
       call({
@@ -431,10 +599,9 @@ export default class CommonStore {
     let ids: string = "[";
     try {
       for (var i = 0; i < parseInt(balance); i++) {
-        let tokenid = await this.testNFTContractInstance!.methods.tokenOfOwnerByIndex(this.user, i).
-          call({
-            from: this.user,
-          });
+        let tokenid = await this.testNFTContractInstance!.methods.tokenOfOwnerByIndex(this.user, i).call({
+          from: this.user,
+        });
         console.log(`toenid: ${tokenid}`);
         ids += tokenid + ",";
       }
@@ -499,7 +666,31 @@ export default class CommonStore {
       })
       return
     }
-    return await this.vestingContractInstance?.methods.balanceOf(streamID, this.user).call({
+    return await this.vesting1ContractInstance?.methods.balanceOf(streamID, this.user).call({
+      from: this.user,
+    })
+  }
+
+  async getSenderWithdrawrableStream1Balance(streamID: number) {
+    // if (!this.user) {
+    //   Modal.error({
+    //     content: "请先连接钱包！！！"
+    //   })
+    //   return
+    // }
+    return await this.vesting1ContractInstance?.methods.balanceOfSender(streamID).call({
+      from: this.user,
+    })
+  }
+
+  async getWithdrawrableStream2Balance(stream2ID: number) {
+    if (!this.user) {
+      Modal.error({
+        content: "请先连接钱包！！！"
+      })
+      return
+    }
+    return await this.vesting2ContractInstance?.methods.balanceOf2(stream2ID, this.user).call({
       from: this.user,
     })
   }

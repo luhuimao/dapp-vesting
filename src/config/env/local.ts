@@ -1,8 +1,8 @@
 
 export default {
   rpcUrl: "https://rinkeby.infura.io/v3/04dd3493f83c48de9735b4b29f108b84",
-  vestingContractAddressRINKEBY: "0x980Ef054b56f80c69AA845b04B33a14cc7a40B46",
-  vestingContractABI: [
+  vesting1ContractAddressRINKEBY: "0xFa6CB842f240671FE835c5c3D97132aB47a056B5",
+  vesting1ContractABI: [
     {
       "inputs": [],
       "stateMutability": "nonpayable",
@@ -89,12 +89,6 @@ export default {
           "internalType": "address",
           "name": "erc721Address",
           "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "tokenId",
-          "type": "uint256"
         }
       ],
       "name": "CreateStream",
@@ -114,12 +108,6 @@ export default {
           "internalType": "address",
           "name": "recipient",
           "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
         }
       ],
       "name": "WithdrawFromStream",
@@ -157,15 +145,15 @@ export default {
           "type": "uint256"
         }
       ],
-      "name": "cancelStream",
+      "name": "balanceOfSender",
       "outputs": [
         {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
+          "internalType": "uint256",
+          "name": "balance",
+          "type": "uint256"
         }
       ],
-      "stateMutability": "nonpayable",
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -197,7 +185,7 @@ export default {
         },
         {
           "internalType": "uint256",
-          "name": "tokenId",
+          "name": "nftTotalSupply",
           "type": "uint256"
         }
       ],
@@ -226,49 +214,6 @@ export default {
           "internalType": "uint256",
           "name": "delta",
           "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "streamId",
-          "type": "uint256"
-        },
-        {
-          "internalType": "address",
-          "name": "who",
-          "type": "address"
-        }
-      ],
-      "name": "deltaOfHistoriesOwner",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "deltaOfHistoriesOwner",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "streamId",
-          "type": "uint256"
-        }
-      ],
-      "name": "getERC721HistoriesOwners",
-      "outputs": [
-        {
-          "internalType": "address[]",
-          "name": "",
-          "type": "address[]"
         }
       ],
       "stateMutability": "view",
@@ -326,7 +271,7 @@ export default {
         },
         {
           "internalType": "uint256",
-          "name": "tokenId",
+          "name": "nftTotalSupply",
           "type": "uint256"
         }
       ],
@@ -352,10 +297,24 @@ export default {
           "internalType": "uint256",
           "name": "streamId",
           "type": "uint256"
-        },
+        }
+      ],
+      "name": "senderWithdrawFromStream",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
         {
           "internalType": "uint256",
-          "name": "amount",
+          "name": "streamId",
           "type": "uint256"
         }
       ],
@@ -371,7 +330,312 @@ export default {
       "type": "function"
     }
   ],
-  testNFTContractAddressRINKEBY: "0x687FB9309Bd0E69d5351B4c4D14D81D1F100Cf53",
+  vesting2ContractAddressRINKEBY: "0x2880c5Cfb7BB84784BD465CC850bd2bf701cC66F",
+  vesting2ContractABI: [
+    {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "streamId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "deposit",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "tokenAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "startTime",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "stopTime",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "erc721Address",
+          "type": "address"
+        }
+      ],
+      "name": "CreateStream2",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "stream2Id",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "recipient",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "WithdrawFromStream2",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "stream2Id",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "who",
+          "type": "address"
+        }
+      ],
+      "name": "balanceOf2",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "balance",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "stream2Id",
+          "type": "uint256"
+        }
+      ],
+      "name": "balanceOfSender2",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "balance",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "deposit",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "tokenAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "startTime",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "stopTime",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "erc721Address",
+          "type": "address"
+        },
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "tokenid",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "share",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct VestingTypes.NFTShares[]",
+          "name": "nftShares",
+          "type": "tuple[]"
+        }
+      ],
+      "name": "createStream2",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "stream2Id",
+          "type": "uint256"
+        }
+      ],
+      "name": "deltaOf2",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "delta",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "stream2Id",
+          "type": "uint256"
+        }
+      ],
+      "name": "getStream2",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "deposit",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "tokenAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "startTime",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "stopTime",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "remainingBalance",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "ratePerSecond",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "erc721Address",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "nextStream2Id",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "stream2Id",
+          "type": "uint256"
+        }
+      ],
+      "name": "senderWithdrawFromStream2",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "stream2Id",
+          "type": "uint256"
+        }
+      ],
+      "name": "withdrawFromStream2",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  testNFTContractAddressRINKEBY: "0x9Db201a9eA5b37Ce49480304fd34C42B3EBc10E3",
   testNFTContractABI: [
     {
       "inputs": [
@@ -987,7 +1251,7 @@ export default {
       "type": "function"
     }
   ],
-  testERC20ContractAddressRINKEBY: "0x52542C71B4472f2f285C8eccF24bA751EaD85D12",
+  testERC20ContractAddressRINKEBY: "0x524A71eAaFC549Cbdf2013A9f9A7A356a9E54372",
   testERC20ContractABI: [
     {
       "inputs": [

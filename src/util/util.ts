@@ -12,7 +12,7 @@ export default class Util {
     return ""
   }
 
-  static async timeoutWrapperCall (func: () => Promise<any>): Promise<any> {
+  static async timeoutWrapperCall(func: () => Promise<any>): Promise<any> {
     return await Promise.race([
       func(),
       new Promise((resolve, reject) => {
@@ -21,5 +21,11 @@ export default class Util {
         }, 7000)
       })
     ])
+  }
+
+  static isNumber(value: string | number): boolean {
+    return ((value != null) &&
+      (value !== '') &&
+      !isNaN(Number(value.toString())));
   }
 }

@@ -48,3 +48,35 @@
   justify-content: space-between;
   align-items: center;
 }
+
+li {list-style-type:none;text-align: left;}
+li span{width: 30%;}
+li input{width: 60%;}
+
+.wrap{
+  width:550px;
+  padding-top: 30px;
+}
+.wrap .button-wrap{
+  padding-top: 40px;
+}
+.item{
+  height: 30px;
+}
+label{
+  width: 200px;
+  display: inline-block;
+  text-align: right;
+  padding-right: 5px;
+  font-weight: bold;
+}
+.top input{
+  width:350px;
+}
+.top .item{margin-top: 15px;}
+#date,#time{
+  width:100px;
+}
+.buttom{
+  padding-top: 20px;
+}

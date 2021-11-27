@@ -11,6 +11,7 @@ import {
   Modal
 } from 'antd';
 import { EthWallet } from "@pefish/js-coin-eth";
+import { NftShares } from '../util/type';
 
 const walletConnectConfig = {
   rpc: {
@@ -34,6 +35,7 @@ export default class CommonStore {
   @observable public approvedForVesting2: boolean = false;
 
   @observable public allowance: number = 0
+  @observable public allowanceOfVesting2: number = 0
 
   @observable public stream1Sender: string = "0"
   @observable public stream1Deposit: number = 0
@@ -44,6 +46,15 @@ export default class CommonStore {
   @observable public stream1RatePerSecond: string = "0"
   @observable public stream1Erc721Address: string = "0"
   @observable public stream1NftTotalSupply: string = "0"
+
+  @observable public stream2Sender: string = "0"
+  @observable public stream2Deposit: number = 0
+  @observable public stream2TokenAddress: string = "0"
+  @observable public stream2StartTime: string = "0"
+  @observable public stream2StopTime: string = "0"
+  @observable public stream2RemainingBalance: string = "0"
+  @observable public stream2RatePerSecond: string = "0"
+  @observable public stream2Erc721Address: string = "0"
 
   private web3Provider?: any
   private web3Instance?: Web3
@@ -169,9 +180,9 @@ export default class CommonStore {
       (async () => {
         // 取余额
         console.log("取Stream余额。。。")
-        this.userWithdrawrableBalance = await Util.timeoutWrapperCall(async () => {
-          return await this.getWithdrawrableStreamBalance(100001);
-        });
+        // this.userWithdrawrableBalance = await Util.timeoutWrapperCall(async () => {
+        //   return await this.getWithdrawrableStreamBalance(100001);
+        // });
       })(),
       (async () => {
         // 取block timestamp
@@ -192,10 +203,11 @@ export default class CommonStore {
       (async () => {
         // 取vesting2allowance
         console.log("取vesting2allowance。。。")
-        const allowance = await Util.timeoutWrapperCall(async () => {
+        this.allowanceOfVesting2 = await Util.timeoutWrapperCall(async () => {
           return (await this.getVesting2Allowance(this.user));
         });
-        this.approvedForVesting2 = allowance > 0 ? true : false;
+        console.log("allowance:", this.allowanceOfVesting2.toString());
+        this.approvedForVesting2 = this.allowanceOfVesting2 > 0 ? true : false;
       })(),
       // (async () => {
       //   // 查询会员是否可用
@@ -419,26 +431,51 @@ export default class CommonStore {
       })
       return
     }
-    if (depositAmount % streamDuration != 0) {
-      Modal.error({
-        content: "depositAmount not multiple of time delta!"
-      })
-      return
-    }
-    if (!this.approved) {
+    // if (depositAmount % streamDuration != 0) {
+    //   Modal.error({
+    //     content: "depositAmount not multiple of time delta!"
+    //   })
+    //   return
+    // }
+    if (!this.approvedForVesting2) {
       Modal.error({
         content: "approve first!"
       })
       return
     }
     try {
+      const obj = JSON.parse(shares);
+      let nftshares: any[] = [];
+      for (var i = 0; i < obj.length; i++) {
+        let tokenid = obj[i].tokenid;
+        let share = obj[i].share;
+        nftshares.push({ tokenid: tokenid, share: share });
+      }
+      console.log(nftshares);
+
       const result = await this.vesting2ContractInstance?.methods.createStream2(
         depositAmount,
         tokenAddr,
         streamStartTime,
         streamStopTime,
         erc721Addr,
-        shares
+        [
+          { tokenid: 0, share: 1000 },
+          { tokenid: 1, share: 2000 },
+          { tokenid: 2, share: 3000 },
+          { tokenid: 3, share: 4000 },
+          { tokenid: 4, share: 5000 },
+          { tokenid: 5, share: 6000 },
+          { tokenid: 6, share: 7000 },
+          { tokenid: 7, share: 8000 },
+          { tokenid: 8, share: 9000 },
+          { tokenid: 9, share: 10000 },
+          { tokenid: 10, share: 6000 },
+          { tokenid: 11, share: 7000 },
+          { tokenid: 12, share: 8000 },
+          { tokenid: 13, share: 9000 },
+          { tokenid: 14, share: 10000 }
+        ]
       ).send({
         from: this.user,
       })  // 直到确认了才会返回
@@ -492,6 +529,30 @@ export default class CommonStore {
     // }
     try {
       const rel = await this.vesting1ContractInstance?.methods.withdrawFromStream(streamID).send({ from: this.user });
+      Modal.success({
+        content: "withdraw succeed！！！"
+      })
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  async withdraw2(streamID: number) {
+    if (!this.user) {
+      Modal.error({
+        content: "请先连接钱包！！！"
+      })
+      return
+    }
+    const balance = await this.getWithdrawrableStream2Balance(streamID);
+    if (balance <= 0) {
+      Modal.error({
+        content: "Error: balance is zero！！！"
+      })
+      return
+    }
+    try {
+      const rel = await this.vesting2ContractInstance?.methods.withdrawFromStream2(streamID).send({ from: this.user });
       Modal.success({
         content: "withdraw succeed！！！"
       })
@@ -558,6 +619,32 @@ export default class CommonStore {
     }
   }
 
+  async getStream2Info(streamID: number) {
+    // if (!this.user) {
+    //   Modal.error({
+    //     content: "请先连接钱包！！！"
+    //   })
+    //   return
+    // }
+    const balance = await this.getWithdrawrableStream2Balance(streamID);
+
+    try {
+      const rel = await this.vesting2ContractInstance?.methods.getStream2(streamID).call({ from: this.user });
+      this.stream2Sender = rel.sender;
+      this.stream2Deposit = rel.deposit;
+      this.stream2TokenAddress = rel.tokenAddress;
+      this.stream2StartTime = rel.startTime;
+      this.stream2StopTime = rel.stopTime;
+      this.stream2RemainingBalance = rel.remainingBalance;
+      this.stream2RatePerSecond = rel.ratePerSecond;
+      this.stream2Erc721Address = rel.erc721Address;
+      Modal.success({
+        content: "get Stream2Info succeed！！！"
+      })
+    } catch (err) {
+      console.log(err)
+    }
+  }
   async approveToVestingContract() {
     try {
       await this.testERC20ContractInstance?.methods.approve(config.vesting1ContractAddressRINKEBY, '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff').send({ from: this.user });
@@ -570,6 +657,20 @@ export default class CommonStore {
     }
 
   }
+
+  async approveToVesting2Contract() {
+    try {
+      await this.testERC20ContractInstance?.methods.approve(config.vesting2ContractAddressRINKEBY, '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff').send({ from: this.user });
+      this.approvedForVesting2 = true;
+      Modal.success({
+        content: "approved！！！"
+      })
+    } catch (err) {
+      console.log(err)
+    }
+
+  }
+
 
   async getAllowance(owner: string) {
     return await this.testERC20ContractInstance?.methods.allowance(owner, config.vesting1ContractAddressRINKEBY).call({ from: this.user });

@@ -240,7 +240,12 @@ export default class Home extends React.Component<{
       withdrawableBalance: balance
     });
   }
-
+  async getBalance2() {
+    const balance = await this.props.commonStore!.getWithdrawrableStream2Balance(this.state.CheckBalanceStreamID);
+    this.setState({
+      withdrawableBalance: balance
+    });
+  }
   async getVesting2Balance() {
     const balance = await this.props.commonStore!.getWithdrawrableStream2Balance(this.state.CheckBalanceStreamID);
     this.setState({
@@ -257,6 +262,7 @@ export default class Home extends React.Component<{
       !this.state.NFTTOTALSUPPLY || this.state.NFTTOTALSUPPLY.length <= 0
     ) {
       alert("DEPOSIT, TOKENADDRESS, STARTTIME, STOPTIME, ERC721ADDRESS, NFTTOTALSUPPLY Can't Be Null");
+      return;
     }
     await this.props.commonStore!.createStream(
       this.state.DEPOSIT,
@@ -268,6 +274,16 @@ export default class Home extends React.Component<{
     );
   }
   async handleCreate2Click() {
+    if (!this.state.DEPOSIT || this.state.DEPOSIT.length <= 0 ||
+      !this.state.TOKENADDRESS || this.state.TOKENADDRESS.length <= 0 ||
+      !this.state.STARTTIME || this.state.STARTTIME.length <= 0 ||
+      !this.state.STOPTIME || this.state.STOPTIME.length <= 0 ||
+      !this.state.ERC721ADDRESS || this.state.ERC721ADDRESS.length <= 0 ||
+      !this.state.Shares || this.state.Shares.length <= 0
+    ) {
+      alert("DEPOSIT, TOKENADDRESS, STARTTIME, STOPTIME, ERC721ADDRESS, Shares Can't Be Null");
+      return;
+    }
     await this.props.commonStore!.createStream2(
       this.state.DEPOSIT,
       this.state.TOKENADDRESS,
@@ -281,88 +297,310 @@ export default class Home extends React.Component<{
     if (this.props.homeStore!.selectedMenu === "create") {
       return (
         <div className="menu-content">
-          <div>
-            <ul>
-              <li>
-                <span>
-                  DEPOSIT:
-                </span>
-                <input type="text" onChange={this.updateDepositInput.bind(this)} name="name" />
-              </li>
-            </ul>
-            <ul>
-              <li>
-                <label>
-                  TOKENADDRESS:
-                </label>
-                <input id="_tokenaddress" type="text" onChange={this.updateTokenAddressInput.bind(this)} name="name" />
-              </li>
-            </ul>
-            <ul>
-              <li>
-                <label>
-                  STARTTIME: <input type="text" onChange={this.updateStartTimeInput.bind(this)} name="name" />
-                </label>
-              </li>
-            </ul>
-            <ul>
-              <li>
-                <label>
-                  STOPTIME: <input type="text" onChange={this.updateStopTimeInput.bind(this)} name="name" />
-                </label>
-              </li>
-            </ul>
-            <ul>
-              <li>
-                <label>
-                  ERC721ADDRESS:
-                  <input type="text" onChange={this.updateErc721AddressInput.bind(this)} name="name" />
-                </label>
-              </li>
-            </ul>
-            <ul>
-              <li>
-                <label>
-                  NFTTOTALSUPPLY:
-                  <input type="text" onChange={this.updateNftTotalSupplyInput.bind(this)} name="name" />
-                </label>
-              </li>
-            </ul>
-            <div style={{
-              float: `left`,
-              display: `flex`,
-              marginLeft: '20px'
-            }}>
-              <Button disabled={this.props.commonStore?.approved} onClick={async () => {
-                await this.props.commonStore?.approveToVestingContract();
-              }}>Approve</Button>
+          <div className="wrap">
+            <div className="top">
+              <div className="item"><h1>Create Stream1</h1></div>
+              <div className="item">
+                <label>DEPOSIT</label>
+                <input id="" name="" onChange={this.updateDepositInput.bind(this)} placeholder="deposit token amount" type="text" />
+              </div>
+              <div className="item">
+                <label>TOKENADDRESS</label>
+                <input id="" name="" onChange={this.updateTokenAddressInput.bind(this)} placeholder="0x524A71eAaFC549Cbdf2013A9f9A7A356a9E54372" type="text" />
+              </div>
+              <div className="item">
+                <label>STARTTIME</label>
+                <input id="phone-num" name="" onChange={this.updateStartTimeInput.bind(this)} placeholder="1637978665" type="text" />
+              </div>
+              <div className="item">
+                <label>STOPTIME</label>
+                <input id="" name="" onChange={this.updateStopTimeInput.bind(this)} placeholder="1637978665" type="text" />
+              </div>
+              <div className="item">
+                <label>ERC721ADDRESS</label>
+                <input id="" name="" onChange={this.updateErc721AddressInput.bind(this)} placeholder="0x9Db201a9eA5b37Ce49480304fd34C42B3EBc10E3" type="text" />
+              </div>
+              <div className="item">
+                <label>NFTTOTALSUPPLY</label>
+                <input id="" name="" onChange={this.updateNftTotalSupplyInput.bind(this)} placeholder="100" type="text" />
+              </div>
             </div>
             <div style={{
-              float: `right`,
-              display: `flex`,
-              marginRight: '20px'
+              paddingTop: '20px',
+              paddingLeft: '20px',
             }}>
+              <div style={{
+                float: `left`,
+                display: `flex`,
+                marginLeft: '20px'
+              }}>
+                <Button disabled={this.props.commonStore?.approved} onClick={async () => {
+                  await this.props.commonStore?.approveToVestingContract();
+                }}>Approve</Button>
+              </div>
+              <div style={{
+                float: `right`,
+                display: `flex`,
+                // marginRight: '20px'
+              }}>
+                <Button type={`primary`} onClick={async () => {
+                  await this.handleCreateClick();
+                }}>Create</Button>
+              </div>
+            </div>
+          </div>
+        </div >
+      )
+    } else if (this.props.homeStore!.selectedMenu === "streamInfo") {
+      return (
+        <div className="menu-content">
+          <div className="wrap">
+            <div className="top">
+              <div className="item"><h1>Get Stream1</h1></div>
+              <div className="item">
+                <label>sender</label>
+                <input id="" disabled name="" value={this.props.commonStore!.stream1Sender} type="text" />
+              </div>
+              <div className="item">
+                <label>deposit</label>
+                <input id="" name="" disabled value={this.props.commonStore!.stream1Deposit} type="text" />
+              </div>
+              <div className="item">
+                <label>tokenAddress</label>
+                <input id="phone-num" name="" value={this.props.commonStore!.stream1TokenAddress} disabled type="text" />
+              </div>
+              <div className="item">
+                <label>startTime</label>
+                <input id="" name="" value={this.props.commonStore!.stream1StartTime} disabled type="text" />
+              </div>
+              <div className="item">
+                <label>stopTime</label>
+                <input id="" name="" value={this.props.commonStore!.stream1StopTime} disabled type="text" />
+              </div>
+              <div className="item">
+                <label>remainingBalance</label>
+                <input id="" name="" value={this.props.commonStore!.stream1RemainingBalance} disabled type="text" />
+              </div>
+              <div className="item">
+                <label>ratePerSecond</label>
+                <input id="" name="" value={this.props.commonStore!.stream1RatePerSecond} disabled type="text" />
+              </div>
+              <div className="item">
+                <label>erc721Address</label>
+                <input id="" name="" value={this.props.commonStore!.stream1Erc721Address} disabled type="text" />
+              </div>
+              <div className="item">
+                <label>nftTotalSupply</label>
+                <input id="" name="" value={this.props.commonStore!.stream1NftTotalSupply} disabled type="text" />
+              </div>
+              <div className="item">
+                <label>StreamID</label>
+                <input type="text" onChange={this.updateCheckBalanceStreamIDInput.bind(this)} name="name" />
+                {/* <input id="" name="" value={this.props.commonStore!.stream1NftTotalSupply} disabled type="text" /> */}
+              </div>
+            </div>
+            <div className="button-wrap">
               <Button type={`primary`} onClick={async () => {
-                await this.handleCreateClick();
-              }}>Create</Button>
+                if (!this.state.CheckBalanceStreamID || this.state.CheckBalanceStreamID.length <= 0) {
+                  alert("StreamID Can't Be Null");
+                  return;
+                }
+                await this.props.commonStore!.getStream1Info(this.state.CheckBalanceStreamID);
+              }}>Get StreamInfo</Button>
             </div>
+          </div>
+          <div style={{
+            display: `flex`,
+            flexDirection: `column`,
+            marginTop: 100
+          }}>
+            {/* <ul><li>
+              <label>
+                sender: {
+                  this.props.commonStore!.stream1Sender
+                }
+              </label>
+            </li></ul>
+            <ul><li>
+              <label>
+                deposit: {this.props.commonStore!.stream1Deposit}
+              </label>
+            </li></ul>
+            <ul><li>
+              <label>
+                tokenAddress: {this.props.commonStore!.stream1TokenAddress}
+              </label>
+            </li></ul>
+            <ul><li>
+              <label>
+                startTime: {this.props.commonStore!.stream1StartTime}
+              </label>
+            </li></ul>
+            <ul><li>
+              <label>
+                stopTime: {this.props.commonStore!.stream1StopTime}
+              </label>
+            </li></ul>
+            <ul><li>
+              <label>
+                remainingBalance: {this.props.commonStore!.stream1RemainingBalance}
+              </label>
+            </li></ul>
+            <ul><li>
+              <label>
+                ratePerSecond: {this.props.commonStore!.stream1RatePerSecond}
+              </label>
+            </li></ul>
+            <ul><li>
+              <label>
+                erc721Address: {this.props.commonStore!.stream1Erc721Address}
+              </label>
+            </li></ul>
+            <ul><li>
+              <label>
+                nftTotalSupply: {this.props.commonStore!.stream1NftTotalSupply}
+              </label>
+            </li></ul> */}
+            {/* <ul><li>
+              StreamID: <input type="text" onChange={this.updateCheckBalanceStreamIDInput.bind(this)} name="name" />
+            </li></ul> */}
 
+          </div>
+        </div>
+      )
+    } else if (this.props.homeStore!.selectedMenu === "balance") {
+      return (
+        <div className="menu-content">
+          <div className="wrap">
+            <div className="top">
+              <div className="item"><h1>Stream1 Balance</h1></div>
+              <div className="item">
+                <label>Test Token Balance</label>
+                <input id="" disabled name="" value={this.props.commonStore!.userTestERC20Balance} type="text" />
+              </div>
+              <div className="item">
+                <label>TEST NFT Balance</label>
+                <input id="" name="" disabled value={this.props.commonStore!.userTestNFTBalance} type="text" />
+              </div>
+              <div className="item">
+                <label>TokenIDs</label>
+                <input id="phone-num" name="" value={this.props.commonStore!.userTestNFTTokenID} disabled type="text" />
+              </div>
+              <div className="item">
+                <label>Vesting Balance</label>
+                <input id="" name="" value={this.state.withdrawableBalance} disabled type="text" />
+              </div>
+              <div className="item">
+                <label>StreamID</label>
+                <input type="text" onChange={this.updateCheckBalanceStreamIDInput.bind(this)} name="name" />
+              </div>
+            </div>
+            <div style={{
+              paddingTop: '20px',
+              paddingLeft: '20px',
+            }}>
+              <div style={{
+                float: `left`,
+                display: `flex`,
+                marginLeft: '20px'
+              }}>
+                <Button type={`primary`} onClick={async () => {
+                  if (!this.state.CheckBalanceStreamID || this.state.CheckBalanceStreamID.length <= 0) {
+                    alert("StreamID Can't Be Null");
+                    return;
+                  }
+                  await this.getBalance();
+                }}>Check Balance</Button>
+              </div>
+              <div style={{
+                float: `right`,
+                display: `flex`,
+              }}>
+                <Button type={`primary`} onClick={() => {
+                  if (!this.state.CheckBalanceStreamID || this.state.CheckBalanceStreamID.length <= 0) {
+                    alert("StreamID Can't Be Null");
+                    return;
+                  }
+                  this.props.commonStore!.withdraw(this.state.CheckBalanceStreamID);
+                }}>Withdraw</Button>
+              </div>
+            </div>
+            {/* <div className="button-wrap">
+              <Button type={`primary`} onClick={async () => {
+                if (!this.state.CheckBalanceStreamID || this.state.CheckBalanceStreamID.length <= 0) {
+                  alert("StreamID Can't Be Null");
+                  return;
+                }
+                await this.getBalance();
+              }}>Check Balance</Button>
+            </div> */}
           </div>
           {/* <div style={{
             display: `flex`,
             flexDirection: `column`,
-            marginTop: 100
-          }}> */}
-          {/* <span>
-              {this.props.homeStore!.counter}
-            </span>
-            <Button type={`primary`} onClick={() => {
-              this.props.homeStore!.add()
-            }}>加计数</Button> */}
-          {/* </div> */}
+            marginTop: 100,
+          }}>
+            <ul><li>
+              <span>
+                Test Token Balance: {
+                  this.props.commonStore!.userTestERC20Balance
+                }
+              </span>
+            </li></ul>
+            <ul><li>
+              <span>
+                TEST NFT Balance: {this.props.commonStore!.userTestNFTBalance}
+              </span>
+            </li></ul>
+            <ul><li>
+              <span>
+                TokenIDs: {this.props.commonStore!.userTestNFTTokenID}
+              </span>
+            </li></ul>
+            <ul><li>  <span>
+              Vesting Withdrawrable Balance: {this.state.withdrawableBalance}
+            </span></li></ul>
+            <ul><li>
+              StreamID: <input type="text" onChange={this.updateCheckBalanceStreamIDInput.bind(this)} name="name" />
+            </li></ul>
+            <Button type={`primary`} onClick={async () => {
+              await this.getBalance();
+            }}>Check Balance</Button>
+          </div> */}
         </div>
       )
-    } else if (this.props.homeStore!.selectedMenu === "streamInfo") {
+    }
+    //  else if (this.props.homeStore!.selectedMenu === "withdraw") {
+    //   return (
+    //     <div className="menu-content">
+    //       <div style={{
+    //         display: `flex`,
+    //         flexDirection: `column`,
+    //         marginTop: 100
+    //       }}>
+    //         <div className="wrap">
+    //           <div className="top">
+    //             <div className="item"><h1>WithDraw From Stream1</h1></div>
+    //             <div className="item">
+    //               <label>StreamID</label>
+    //               <input id="" name="" onChange={this.updateStreamIdInput.bind(this)} placeholder="StreamID To WithDraw" type="text" />
+    //             </div>
+    //           </div>
+    //           <div className="button-wrap">
+    //             <Button type={`primary`} onClick={() => {
+    //               if (!this.state.StreamID || this.state.StreamID.length <= 0) {
+    //                 alert("StreamID Can't Be Null");
+    //                 return;
+    //               }
+    //               this.props.commonStore!.withdraw(this.state.StreamID);
+    //             }}>Withdraw</Button>
+    //           </div>
+    //         </div>
+    //       </div>
+    //     </div>
+    //   )
+    // } 
+    else if (this.props.homeStore!.selectedMenu === "senderWithdraw") {
       return (
         <div className="menu-content">
           <div style={{
@@ -370,71 +608,84 @@ export default class Home extends React.Component<{
             flexDirection: `column`,
             marginTop: 100
           }}>
-            <ul><li>
-              <span>
-                sender: {
-                  this.props.commonStore!.stream1Sender
-                }
-              </span>
-            </li></ul>
-            <ul><li>
-              <span>
-                deposit: {this.props.commonStore!.stream1Deposit}
-              </span>
-            </li></ul>
-            <ul><li>
-              <span>
-                tokenAddress: {this.props.commonStore!.stream1TokenAddress}
-              </span>
-            </li></ul>
-            <ul><li>
-              <span>
-                startTime: {this.props.commonStore!.stream1StartTime}
-              </span>
-            </li></ul>
-            <ul><li>
-              <span>
-                stopTime: {this.props.commonStore!.stream1StopTime}
-              </span>
-            </li></ul>
-            <ul><li>
-              <span>
-                remainingBalance: {this.props.commonStore!.stream1RemainingBalance}
-              </span>
-            </li></ul>
-            <ul><li>
-              <span>
-                ratePerSecond: {this.props.commonStore!.stream1RatePerSecond}
-              </span>
-            </li></ul>
-            <ul><li>
-              <span>
-                erc721Address: {this.props.commonStore!.stream1Erc721Address}
-              </span>
-            </li></ul>
-            <ul><li>
-              <span>
-                nftTotalSupply: {this.props.commonStore!.stream1NftTotalSupply}
-              </span>
-            </li></ul>
-            <ul><li>
-              StreamID: <input type="text" onChange={this.updateCheckBalanceStreamIDInput.bind(this)} name="name" />
-
-            </li></ul>
-            <Button type={`primary`} onClick={async () => {
-              if (!this.state.CheckBalanceStreamID || this.state.CheckBalanceStreamID.length <= 0) {
-                alert("StreamID Can't Be Null");
-              }
-              await this.props.commonStore!.getStream1Info(this.state.CheckBalanceStreamID);
-            }}>Get StreamInfo</Button>
+            <div className="wrap">
+              <div className="top">
+                <div className="item"><h1>Sender WithDraw From Stream1</h1></div>
+                <div className="item">
+                  <label>StreamID</label>
+                  <input id="" name="" onChange={this.updateStreamIdInput.bind(this)} placeholder="StreamID To WithDraw" type="text" />
+                </div>
+              </div>
+              <div className="button-wrap">
+                <Button type={`primary`} onClick={() => {
+                  if (!this.state.StreamID || this.state.StreamID.length <= 0) {
+                    alert("StreamID Can't Be Null");
+                    return;
+                  }
+                  this.props.commonStore!.senderWithdraw(this.state.StreamID);
+                }}>Withdraw</Button>
+              </div>
+            </div>
           </div>
         </div>
       )
-    }
-    else if (this.props.homeStore!.selectedMenu === "create2") {
+    } else if (this.props.homeStore!.selectedMenu === "create2") {
       return (
         <div className="menu-content">
-          <div>
+          <div className="wrap">
+            <div className="top">
+              <div className="item"><h1>Create Stream2</h1></div>
+
+              <div className="item">
+                <label>DEPOSIT</label>
+                <input id="" name="" onChange={this.updateDepositInput.bind(this)} placeholder="deposit token amount" type="text" />
+              </div>
+              <div className="item">
+                <label>TOKENADDRESS</label>
+                <input id="" name="" onChange={this.updateTokenAddressInput.bind(this)} placeholder="0x524A71eAaFC549Cbdf2013A9f9A7A356a9E54372" type="text" />
+              </div>
+              <div className="item">
+                <label>STARTTIME</label>
+                <input id="phone-num" name="" onChange={this.updateStartTimeInput.bind(this)} placeholder="1637978665" type="text" />
+              </div>
+              <div className="item">
+                <label>STOPTIME</label>
+                <input id="" name="" onChange={this.updateStopTimeInput.bind(this)} placeholder="1637978665" type="text" />
+              </div>
+              <div className="item">
+                <label>ERC721ADDRESS</label>
+                <input id="" name="" onChange={this.updateErc721AddressInput.bind(this)} placeholder="0x9Db201a9eA5b37Ce49480304fd34C42B3EBc10E3" type="text" />
+              </div>
+              <div className="item">
+                <label>SHARES</label>
+                <input id="" name="" onChange={this.updateSharesInput.bind(this)} placeholder="Json Format" type="text" />
+              </div>
+            </div>
+            <div style={{
+              paddingTop: '20px',
+              paddingLeft: '20px',
+            }}>
+              <div style={{
+                float: `left`,
+                display: `flex`,
+                marginLeft: '20px'
+              }}>
+                <Button disabled={this.props.commonStore?.approvedForVesting2} onClick={async () => {
+                  await this.props.commonStore?.approveToVesting2Contract();
+                }}>Approve</Button>
+              </div>
+              <div style={{
+                float: `right`,
+                display: `flex`,
+                // marginRight: '20px'
+              }}>
+                <Button type={`primary`} onClick={async () => {
+                  await this.handleCreate2Click();
+                }}>Create</Button>
+              </div>
+            </div>
+          </div>
+          <div style={{ display: 'none' }}>
             <ul>
               <li>
                 <span>
@@ -487,7 +738,7 @@ export default class Home extends React.Component<{
               marginLeft: '20px'
             }}>
               <Button disabled={this.props.commonStore?.approvedForVesting2} onClick={async () => {
-                await this.props.commonStore?.approveToVestingContract();
+                await this.props.commonStore?.approveToVesting2Contract();
               }}>Approve</Button>
             </div>
             <div style={{
@@ -496,101 +747,153 @@ export default class Home extends React.Component<{
               marginRight: '20px'
             }}>
               <Button type={`primary`} onClick={async () => {
-                // await this.handleCreateClick();
+                await this.handleCreate2Click();
               }}>Create</Button>
             </div>
           </div>
         </div>
       )
-    } else if (this.props.homeStore!.selectedMenu === "balance") {
+    } else if (this.props.homeStore!.selectedMenu === "stream2Info") {
       return (
         <div className="menu-content">
-          <div style={{
-            display: `flex`,
-            flexDirection: `column`,
-            marginTop: 100
-          }}>
-            <ul><li>
-              <span>
-                Test Token Balance: {
-                  this.props.commonStore!.userTestERC20Balance
-                }
-              </span>
-            </li></ul>
-            <ul><li>
-              <span>
-                TEST NFT Balance: {this.props.commonStore!.userTestNFTBalance}
-              </span>
-            </li></ul>
-            <ul><li>
-              <span>
-                TokenIDs: {this.props.commonStore!.userTestNFTTokenID}
-              </span>
-            </li></ul>
-            <ul><li>  <span>
-              Vesting Withdrawrable Balance: {this.state.withdrawableBalance}
-            </span></li></ul>
-            <ul><li>
-              StreamID: <input type="text" onChange={this.updateCheckBalanceStreamIDInput.bind(this)} name="name" />
-            </li></ul>
-            <Button type={`primary`} onClick={async () => {
-              await this.getBalance();
-            }}>Check Balance</Button>
-          </div>
-        </div>
-      )
-    } else if (this.props.homeStore!.selectedMenu === "withdraw") {
-      return (
-        <div className="menu-content">
-          <div style={{
-            display: `flex`,
-            flexDirection: `column`,
-            marginTop: 100
-          }}>
-            <div className="">
-              <div>
-                <ul>
-                  <li>
-                    <span>StreamID</span>
-                    <input type="text" onChange={this.updateStreamIdInput.bind(this)} name="name" />
-                  </li>
-                </ul>
-                {/* <ul>
-                  <li>
-                    <span>Amount</span>
-                    <input type="text" onChange={this.updateWithdrawAmount.bind(this)} name="name" />
-                  </li>
-                </ul> */}
+          <div className="wrap">
+            <div className="top">
+              <div className="item"><h1>Get Stream2 Info</h1></div>
+
+              <div className="item">
+                <label>sender</label>
+                <input id="" disabled name="" value={this.props.commonStore!.stream2Sender} type="text" />
+              </div>
+              <div className="item">
+                <label>deposit</label>
+                <input id="" name="" disabled value={this.props.commonStore!.stream2Deposit} type="text" />
+              </div>
+              <div className="item">
+                <label>tokenAddress</label>
+                <input id="phone-num" name="" value={this.props.commonStore!.stream2TokenAddress} disabled type="text" />
+              </div>
+              <div className="item">
+                <label>startTime</label>
+                <input id="" name="" value={this.props.commonStore!.stream2StartTime} disabled type="text" />
+              </div>
+              <div className="item">
+                <label>stopTime</label>
+                <input id="" name="" value={this.props.commonStore!.stream2StopTime} disabled type="text" />
+              </div>
+              <div className="item">
+                <label>remainingBalance</label>
+                <input id="" name="" value={this.props.commonStore!.stream2RemainingBalance} disabled type="text" />
+              </div>
+              <div className="item">
+                <label>ratePerSecond</label>
+                <input id="" name="" value={this.props.commonStore!.stream2RatePerSecond} disabled type="text" />
+              </div>
+              <div className="item">
+                <label>erc721Address</label>
+                <input id="" name="" value={this.props.commonStore!.stream2Erc721Address} disabled type="text" />
+              </div>
+              {/* <div className="item">
+                <label>nftTotalSupply</label>
+                <input id="" name="" value={this.props.commonStore!.stream1NftTotalSupply} disabled type="text" />
+              </div> */}
+              <div className="item">
+                <label>StreamID</label>
+                <input type="text" onChange={this.updateCheckBalanceStreamIDInput.bind(this)} name="name" />
+                {/* <input id="" name="" value={this.props.commonStore!.stream1NftTotalSupply} disabled type="text" /> */}
               </div>
             </div>
-            <Button type={`primary`} onClick={() => {
-              this.props.commonStore!.withdraw(this.state.StreamID);
-            }}>Withdraw</Button>
+            <div className="button-wrap">
+              <Button type={`primary`} onClick={async () => {
+                if (!this.state.CheckBalanceStreamID || this.state.CheckBalanceStreamID.length <= 0) {
+                  alert("StreamID Can't Be Null");
+                  return;
+                }
+                await this.props.commonStore!.getStream2Info(this.state.CheckBalanceStreamID);
+              }}>Get StreamInfo</Button>
+            </div>
           </div>
         </div>
       )
-    } else if (this.props.homeStore!.selectedMenu === "senderWithdraw") {
+    } else if (this.props.homeStore!.selectedMenu === "stream2Balance") {
       return (
         <div className="menu-content">
-          <div style={{
-            display: `flex`,
-            flexDirection: `column`,
-            marginTop: 100
-          }}>
-            <div className=""><ul>
-              <li>
-                <span>StreamID</span>
-                <input type="text" onChange={this.updateStreamIdInput.bind(this)} name="name" />
-              </li>
-            </ul></div>
-            <Button type={`primary`} onClick={() => {
-              this.props.commonStore!.senderWithdraw(this.state.StreamID);
-            }}>withdraw</Button>
+          <div className="wrap">
+            <div className="top">
+              <div className="item"><h1>Stream2 Balance</h1></div>
+              <div className="item">
+                <label>Vesting Balance</label>
+                <input id="" name="" value={this.state.withdrawableBalance} disabled type="text" />
+              </div>
+              <div className="item">
+                <label>Stream2ID</label>
+                <input type="text" onChange={this.updateCheckBalanceStreamIDInput.bind(this)} name="name" />
+              </div>
+            </div>
+            <div style={{
+              paddingTop: '20px',
+              paddingLeft: '20px',
+            }}>
+              <div style={{
+                float: `left`,
+                display: `flex`,
+                marginLeft: '20px'
+              }}>
+                <Button type={`primary`} onClick={async () => {
+                  if (!this.state.CheckBalanceStreamID || this.state.CheckBalanceStreamID.length <= 0) {
+                    alert("StreamID Can't Be Null");
+                    return;
+                  }
+                  await this.getBalance2();
+                }}>Check Balance</Button>
+              </div>
+              <div style={{
+                float: `right`,
+                display: `flex`,
+              }}>
+                <Button type={`primary`} onClick={() => {
+                  if (!this.state.CheckBalanceStreamID || this.state.CheckBalanceStreamID.length <= 0) {
+                    alert("StreamID Can't Be Null");
+                    return;
+                  }
+                  this.props.commonStore!.withdraw2(this.state.CheckBalanceStreamID);
+                }}>Withdraw</Button>
+              </div>
+            </div>
           </div>
-
         </div>
       )
-    } else if (this.props.homeStore!.selectedMenu === "mint") {
+    }
+    // else if (this.props.homeStore!.selectedMenu === "withdraw2") {
+    //   return (
+    //     <div className="menu-content">
+    //       <div style={{
+    //         display: `flex`,
+    //         flexDirection: `column`,
+    //         marginTop: 100
+    //       }}>
+    //         <div className="wrap">
+    //           <div className="top">
+    //             <div className="item"><h1>WithDraw From Stream2</h1></div>
+    //             <div className="item">
+    //               <label>StreamID</label>
+    //               <input id="" name="" onChange={this.updateStreamIdInput.bind(this)} placeholder="StreamID To WithDraw" type="text" />
+    //             </div>
+    //           </div>
+    //           <div className="button-wrap">
+    //             <Button type={`primary`} onClick={() => {
+    //               if (!this.state.StreamID || this.state.StreamID.length <= 0) {
+    //                 alert("StreamID Can't Be Null");
+    //                 return;
+    //               }
+    //               this.props.commonStore!.withdraw2(this.state.StreamID);
+    //             }}>Withdraw</Button>
+    //           </div>
+    //         </div>
+    //       </div>
+    //     </div>
+    //   )
+    // } 
+    else if (this.props.homeStore!.selectedMenu === "mint") {
       return (
         <div className="menu-content">
           <div style={{
@@ -607,30 +910,29 @@ export default class Home extends React.Component<{
     } else if (this.props.homeStore!.selectedMenu === "send") {
       return (
         <div className="menu-content">
-          <div style={{
-            display: `flex`,
-            flexDirection: `column`,
-            marginTop: 100
-          }}>
-            <div className="">
-              <div>
-                <ul>
-                  <li>
-                    <span>Recipient</span>
-                    <input type="text" onChange={this.updateRecipientInput.bind(this)} name="name" />
-                  </li>
-                </ul>
-                <ul>
-                  <li>
-                    <span>TokenID</span>
-                    <input type="text" onChange={this.updateSendTokenIDInput.bind(this)} name="name" />
-                  </li>
-                </ul>
+          <div className="wrap">
+            <div className="top">
+              <div className="item"><h1>Transfer NFT</h1></div>
+              <div className="item">
+                <label>Recipient</label>
+                <input id="" name="" onChange={this.updateRecipientInput.bind(this)} placeholder="Recipient Address" type="text" />
+              </div>
+              <div className="item">
+                <label>TokenID</label>
+                <input id="" name="" onChange={this.updateSendTokenIDInput.bind(this)} placeholder="TokenId To Send" type="text" />
               </div>
             </div>
-            <Button type={`primary`} onClick={() => {
-              this.props.commonStore!.sendTestNFT(this.state.Recipient, this.state.SendTokenId)
-            }}>Send</Button>
+            <div className="button-wrap">
+              <Button type={`primary`} onClick={() => {
+                if (!this.state.Recipient || this.state.Recipient.length <= 0
+                  || !this.state.SendTokenId || this.state.SendTokenId.length <= 0
+                ) {
+                  alert("Recipient,SendTokenId Can't Be Null");
+                  return;
+                }
+                this.props.commonStore!.sendTestNFT(this.state.Recipient, this.state.SendTokenId)
+              }}>Transfer</Button>
+            </div>
           </div>
         </div>
       )
@@ -705,11 +1007,11 @@ export default class Home extends React.Component<{
                     <Menu.Item key="balance" icon={<ToolOutlined />}>
                       Stream1 Balance
                     </Menu.Item>
-                    <Menu.Item key="withdraw" icon={<ToolOutlined />}>
-                      Withdraw From Stream1
-                    </Menu.Item>
+                    {/* <Menu.Item key="withdraw" icon={<ToolOutlined />}>
+                      Withdraw Stream1
+                    </Menu.Item> */}
                     <Menu.Item key="senderWithdraw" icon={<ToolOutlined />}>
-                      Sender Withdraw From Stream1
+                      Sender Withdraw Stream1
                     </Menu.Item>
                     <Menu.Item key="create2" icon={<ToolOutlined />}>
                       Create Stream2
@@ -717,14 +1019,17 @@ export default class Home extends React.Component<{
                     <Menu.Item key="stream2Info" icon={<ToolOutlined />}>
                       Get Stream2
                     </Menu.Item>
-                    <Menu.Item key="withdraw2" icon={<ToolOutlined />}>
-                      Withdraw From Stream2
+                    <Menu.Item key="stream2Balance" icon={<ToolOutlined />}>
+                      Stream2 Balance
                     </Menu.Item>
+                    {/* <Menu.Item key="withdraw2" icon={<ToolOutlined />}>
+                      Withdraw Stream2
+                    </Menu.Item> */}
                     <Menu.Item key="mint" icon={<ToolOutlined />}>
                       Mint TESTNFT
                     </Menu.Item>
                     <Menu.Item key="send" icon={<ToolOutlined />}>
-                      Send TESTNFT
+                      Transfer TESTNFT
                     </Menu.Item>
                   </Menu>
                 </Sider>

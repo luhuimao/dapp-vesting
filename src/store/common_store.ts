@@ -58,7 +58,7 @@ export default class CommonStore {
 
   private web3Provider?: any
   private web3Instance?: Web3
-  private coinToolsContractInstance?: Contract
+  // private coinToolsContractInstance?: Contract
   private ethWallet: EthWallet = new EthWallet()
   private vesting1ContractInstance?: Contract
   private vesting2ContractInstance?: Contract
@@ -116,7 +116,7 @@ export default class CommonStore {
       this.user = accounts[0]
       console.log("获取到用户:", this.user)
       this.web3Instance = new Web3(this.web3Provider as any)
-      this.coinToolsContractInstance = new this.web3Instance!.eth.Contract(config.coinToolContractAbi, config.coinToolContractAddress);
+      // this.coinToolsContractInstance = new this.web3Instance!.eth.Contract(config.coinToolContractAbi, config.coinToolContractAddress);
       await this.afterConnectWalletSuccess()
     });
     const accounts = await this.web3Provider.request({ method: 'eth_requestAccounts' });
@@ -273,18 +273,18 @@ export default class CommonStore {
       })
       return
     }
-    const requiredFee = await Util.timeoutWrapperCall(async () => {
-      return await this.coinToolsContractInstance?.methods.getRequiredFee(0).call({
-        from: this.user,
-      })
-    })
-    console.log(`要求收取费用：${StringUtil.unShiftedBy_(requiredFee, 18)}`)
+    // const requiredFee = await Util.timeoutWrapperCall(async () => {
+    //   return await this.coinToolsContractInstance?.methods.getRequiredFee(0).call({
+    //     from: this.user,
+    //   })
+    // })
+    // console.log(`要求收取费用：${StringUtil.unShiftedBy_(requiredFee, 18)}`)
     try {
-      const result = await this.coinToolsContractInstance?.methods.toolEntry(0, this.ethWallet.zeroAddress(), `0x${this.ethWallet.encodeParamsHex(["address"], [this.user])}`).send({
-        from: this.user,
-        value: requiredFee,
-      })  // 直到确认了才会返回
-      console.log("result", result)
+      // const result = await this.coinToolsContractInstance?.methods.toolEntry(0, this.ethWallet.zeroAddress(), `0x${this.ethWallet.encodeParamsHex(["address"], [this.user])}`).send({
+      //   from: this.user,
+      //   value: requiredFee,
+      // })  // 直到确认了才会返回
+      // console.log("result", result)
       Modal.success({
         content: "欢迎加入会员大家庭！！！"
       })
@@ -445,37 +445,31 @@ export default class CommonStore {
     }
     try {
       const obj = JSON.parse(shares);
-      let nftshares: any[] = [];
+      let nftshares: number[] = [];
+      let tokenIds: number[] = [];
+
       for (var i = 0; i < obj.length; i++) {
         let tokenid = obj[i].tokenid;
         let share = obj[i].share;
-        nftshares.push({ tokenid: tokenid, share: share });
+        nftshares.push(share);
+        tokenIds.push(tokenid);
       }
-      console.log(nftshares);
+      console.log(`depositAmount ${depositAmount}`);
+      console.log(`tokenAddr ${tokenAddr}`);
+      console.log(`streamStartTime ${streamStartTime}`);
+      console.log(`streamStopTime ${streamStopTime}`);
+      console.log(`erc721Addr ${erc721Addr}`);
+      console.log(`nftshares ${nftshares}`);
+      console.log(`tokenIds ${tokenIds}`);
 
-      const result = await this.vesting2ContractInstance?.methods.createStream2(
+      const result = await this.vesting2ContractInstance?.methods.createStream21(
         depositAmount,
         tokenAddr,
         streamStartTime,
         streamStopTime,
         erc721Addr,
-        [
-          { tokenid: 0, share: 1000 },
-          { tokenid: 1, share: 2000 },
-          { tokenid: 2, share: 3000 },
-          { tokenid: 3, share: 4000 },
-          { tokenid: 4, share: 5000 },
-          { tokenid: 5, share: 6000 },
-          { tokenid: 6, share: 7000 },
-          { tokenid: 7, share: 8000 },
-          { tokenid: 8, share: 9000 },
-          { tokenid: 9, share: 10000 },
-          { tokenid: 10, share: 6000 },
-          { tokenid: 11, share: 7000 },
-          { tokenid: 12, share: 8000 },
-          { tokenid: 13, share: 9000 },
-          { tokenid: 14, share: 10000 }
-        ]
+        tokenIds,
+        nftshares
       ).send({
         from: this.user,
       })  // 直到确认了才会返回
@@ -495,7 +489,8 @@ export default class CommonStore {
       let stream2id: number = 0;
       if (data_events) {
         for (var i = 0; i < data_events.length; i++) {
-          stream2id = data_events[i]['returnValues']['stream2Id'];
+          console.log("returnValues:", data_events[i]['returnValues']);
+          stream2id = data_events[i]['returnValues']['streamId'];
           console.log(`stream2id: ${stream2id.toString()}`);
         }
       }
@@ -836,7 +831,7 @@ export default class CommonStore {
         console.log("wallet connect连接成功")
         this.user = result[0]
         this.web3Instance = new Web3(this.web3Provider as any)
-        this.coinToolsContractInstance = new this.web3Instance!.eth.Contract(config.coinToolContractAbi, config.coinToolContractAddress);
+        // this.coinToolsContractInstance = new this.web3Instance!.eth.Contract(config.coinToolContractAbi, config.coinToolContractAddress);
         console.log("获取到用户:", this.user)
         await this.afterConnectWalletSuccess()
       } catch (err) {  // 用户关掉二维码窗口就会异常

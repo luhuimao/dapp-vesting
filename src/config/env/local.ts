@@ -1,7 +1,7 @@
 
 export default {
   rpcUrl: "https://rinkeby.infura.io/v3/04dd3493f83c48de9735b4b29f108b84",
-  vesting1ContractAddressRINKEBY: "0xFa6CB842f240671FE835c5c3D97132aB47a056B5",
+  vesting1ContractAddressRINKEBY: "0xD7E3304d179B2910D1c00a8c609274BB222687d0",
   vesting1ContractABI: [
     {
       "inputs": [],
@@ -330,7 +330,7 @@ export default {
       "type": "function"
     }
   ],
-  vesting2ContractAddressRINKEBY: "0x2880c5Cfb7BB84784BD465CC850bd2bf701cC66F",
+  vesting2ContractAddressRINKEBY: "0x1822F29C40FE09D5A78BAE1D0f4d5417FaA22BD1",
   vesting2ContractABI: [
     {
       "inputs": [],
@@ -500,6 +500,55 @@ export default {
         }
       ],
       "name": "createStream2",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "deposit",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "tokenAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "startTime",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "stopTime",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "erc721Address",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "tokenIds",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "nftShares",
+          "type": "uint256[]"
+        }
+      ],
+      "name": "createStream21",
       "outputs": [
         {
           "internalType": "uint256",

@@ -35,6 +35,7 @@ export default class Home extends React.Component<{
       TOKENID: '',
       NFTTOTALSUPPLY: '',
       StreamID: '',
+      Stream2ID: '',
       WithdrawAmount: '',
       Recipient: '',
       SendTokenId: '',
@@ -164,6 +165,21 @@ export default class Home extends React.Component<{
     // Update the state object
     this.setState({
       StreamID: streamID
+    });
+  }
+
+  updateStream2IdInput(event) {
+    // Extract the current value of the customer from state
+    var stream2ID = this.state.Stream2ID;
+
+    // Extract the value of the input element represented by `target`
+    var modifiedValue = event.target.value;
+    // Update the customer object's first name
+    stream2ID = modifiedValue;
+
+    // Update the state object
+    this.setState({
+      Stream2ID: stream2ID
     });
   }
 
@@ -893,7 +909,36 @@ export default class Home extends React.Component<{
     //     </div>
     //   )
     // } 
-    else if (this.props.homeStore!.selectedMenu === "mint") {
+    else if (this.props.homeStore!.selectedMenu === "senderWithdraw2") {
+      return (
+        <div className="menu-content">
+          <div style={{
+            display: `flex`,
+            flexDirection: `column`,
+            marginTop: 100
+          }}>
+            <div className="wrap">
+              <div className="top">
+                <div className="item"><h1>Sender WithDraw From Stream2</h1></div>
+                <div className="item">
+                  <label>Stream2ID</label>
+                  <input id="" name="" onChange={this.updateStream2IdInput.bind(this)} placeholder="Stream2ID To WithDraw" type="text" />
+                </div>
+              </div>
+              <div className="button-wrap">
+                <Button type={`primary`} onClick={() => {
+                  if (!this.state.Stream2ID || this.state.Stream2ID.length <= 0) {
+                    alert("Stream2ID Can't Be Null");
+                    return;
+                  }
+                  this.props.commonStore!.senderWithdraw2(this.state.Stream2ID);
+                }}>Withdraw</Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    } else if (this.props.homeStore!.selectedMenu === "mint") {
       return (
         <div className="menu-content">
           <div style={{
@@ -1025,6 +1070,9 @@ export default class Home extends React.Component<{
                     {/* <Menu.Item key="withdraw2" icon={<ToolOutlined />}>
                       Withdraw Stream2
                     </Menu.Item> */}
+                    <Menu.Item key="senderWithdraw2" icon={<ToolOutlined />}>
+                      Sender Withdraw Stream2
+                    </Menu.Item>
                     <Menu.Item key="mint" icon={<ToolOutlined />}>
                       Mint TESTNFT
                     </Menu.Item>

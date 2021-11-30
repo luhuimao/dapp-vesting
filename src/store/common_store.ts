@@ -586,6 +586,30 @@ export default class CommonStore {
     }
   }
 
+  async senderWithdraw2(stream2ID: number) {
+    if (!this.user) {
+      Modal.error({
+        content: "请先连接钱包！！！"
+      })
+      return
+    }
+    const balance = await this.getSenderWithdrawrableStream2Balance(stream2ID);
+    if (balance <= 0) {
+      Modal.error({
+        content: "Error: sender balance is zero！！！"
+      })
+      return
+    }
+    try {
+      const rel = await this.vesting2ContractInstance?.methods.senderWithdrawFromStream2(stream2ID).send({ from: this.user });
+      Modal.success({
+        content: "sender withdraw succeed！！！"
+      })
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
   async getStream1Info(streamID: number) {
     if (!this.user) {
       Modal.error({
@@ -787,6 +811,12 @@ export default class CommonStore {
       return
     }
     return await this.vesting2ContractInstance?.methods.balanceOf2(stream2ID, this.user).call({
+      from: this.user,
+    })
+  }
+
+  async getSenderWithdrawrableStream2Balance(stream2ID: number) {
+    return await this.vesting2ContractInstance?.methods.balanceOfSender2(stream2ID).call({
       from: this.user,
     })
   }

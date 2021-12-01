@@ -28,10 +28,15 @@ export default class Home extends React.Component<{
 
     this.state = {
       DEPOSIT: '',
+      DEPOSIT2: '',
       TOKENADDRESS: '',
+      TOKENADDRESS2: '',
       STARTTIME: '',
       STOPTIME: '',
+      STARTTIME2: '',
+      STOPTIME2: '',
       ERC721ADDRESS: '',
+      ERC721ADDRESS2: '',
       TOKENID: '',
       NFTTOTALSUPPLY: '',
       StreamID: '',
@@ -40,15 +45,25 @@ export default class Home extends React.Component<{
       Recipient: '',
       SendTokenId: '',
       CheckBalanceStreamID: '',
+      CheckBalanceStream2ID: '',
       withdrawableBalance: '',
       withdrawableBalance2: '',
-      Shares: ''
+      SHARES: ''
     }
-
+    //vesting1 input event
     this.updateDepositInput = this.updateDepositInput.bind(this);
     this.updateTokenAddressInput = this.updateTokenAddressInput.bind(this);
     this.handleCreateClick = this.handleCreateClick.bind(this);
+
+    //vesting2 input event
+    this.updateDeposit2Input = this.updateDeposit2Input.bind(this);
+    this.updateTokenAddress2Input = this.updateTokenAddress2Input.bind(this);
+    this.updateStartTime2Input = this.updateStartTime2Input.bind(this);
+    this.updateStopTime2Input = this.updateStopTime2Input.bind(this);
+    this.updateErc721Address2Input = this.updateErc721Address2Input.bind(this);
+    this.updateCheckBalanceStream2IDInput = this.updateCheckBalanceStream2IDInput.bind(this);
   }
+  //vesting1 event handler
   updateTokenAddressInput(event) {
     // Extract the current value of the customer from state
     var tokenaddr = this.state.TOKENADDRESS;
@@ -63,6 +78,7 @@ export default class Home extends React.Component<{
       TOKENADDRESS: tokenaddr
     });
   }
+
   updateDepositInput(event) {
     // Extract the current value of the customer from state
     var deposit = this.state.DEPOSIT;
@@ -123,21 +139,6 @@ export default class Home extends React.Component<{
     });
   }
 
-  updateSharesInput(event) {
-    // Extract the current value of the customer from state
-    var share = this.state.Shares;
-
-    // Extract the value of the input element represented by `target`
-    var modifiedValue = event.target.value;
-    // Update the customer object's first name
-    share = modifiedValue;
-
-    // Update the state object
-    this.setState({
-      Shares: share
-    });
-  }
-
   updateNftTotalSupplyInput(event) {
     // Extract the current value of the customer from state
     var totalSupply = this.state.NFTTOTALSUPPLY;
@@ -150,6 +151,54 @@ export default class Home extends React.Component<{
     // Update the state object
     this.setState({
       NFTTOTALSUPPLY: totalSupply
+    });
+  }
+  //vesting2 event handler
+  updateDeposit2Input(event) {
+    // Update the state object
+    this.setState({
+      DEPOSIT2: event.target.value
+    });
+  }
+
+  updateTokenAddress2Input(event) {
+    // Update the state object
+    this.setState({
+      TOKENADDRESS2: event.target.value
+    });
+  }
+
+  updateStartTime2Input(event) {
+    // Update the state object
+    this.setState({
+      STARTTIME2: event.target.value
+    });
+  }
+
+  updateStopTime2Input(event) {
+    // Update the state object
+    this.setState({
+      STOPTIME2: event.target.value
+    });
+  }
+
+  updateErc721Address2Input(event) {
+    // Update the state object
+    this.setState({
+      ERC721ADDRESS2: event.target.value
+    });
+  }
+
+  updateSharesInput(event) {
+    // Update the state object
+    this.setState({
+      SHARES: event.target.value
+    });
+  }
+
+  updateCheckBalanceStream2IDInput(event) {
+    this.setState({
+      CheckBalanceStream2ID: event.target.value
     });
   }
 
@@ -257,9 +306,9 @@ export default class Home extends React.Component<{
     });
   }
   async getBalance2() {
-    const balance = await this.props.commonStore!.getWithdrawrableStream2Balance(this.state.CheckBalanceStreamID);
+    const balance = await this.props.commonStore!.getWithdrawrableStream2Balance(this.state.CheckBalanceStream2ID);
     this.setState({
-      withdrawableBalance: balance
+      withdrawableBalance2: balance
     });
   }
   async getVesting2Balance() {
@@ -290,23 +339,23 @@ export default class Home extends React.Component<{
     );
   }
   async handleCreate2Click() {
-    if (!this.state.DEPOSIT || this.state.DEPOSIT.length <= 0 ||
-      !this.state.TOKENADDRESS || this.state.TOKENADDRESS.length <= 0 ||
-      !this.state.STARTTIME || this.state.STARTTIME.length <= 0 ||
-      !this.state.STOPTIME || this.state.STOPTIME.length <= 0 ||
-      !this.state.ERC721ADDRESS || this.state.ERC721ADDRESS.length <= 0 ||
-      !this.state.Shares || this.state.Shares.length <= 0
+    if (!this.state.DEPOSIT2 || this.state.DEPOSIT2.length <= 0 ||
+      !this.state.TOKENADDRESS2 || this.state.TOKENADDRESS2.length <= 0 ||
+      !this.state.STARTTIME2 || this.state.STARTTIME2.length <= 0 ||
+      !this.state.STOPTIME2 || this.state.STOPTIME2.length <= 0 ||
+      !this.state.ERC721ADDRESS2 || this.state.ERC721ADDRESS2.length <= 0 ||
+      !this.state.SHARES || this.state.SHARES.length <= 0
     ) {
-      alert("DEPOSIT, TOKENADDRESS, STARTTIME, STOPTIME, ERC721ADDRESS, Shares Can't Be Null");
+      alert("DEPOSIT, TOKENADDRESS, STARTTIME, STOPTIME, ERC721ADDRESS, SHARES Can't Be Null");
       return;
     }
     await this.props.commonStore!.createStream2(
-      this.state.DEPOSIT,
-      this.state.TOKENADDRESS,
-      this.state.STARTTIME,
-      this.state.STOPTIME,
-      this.state.ERC721ADDRESS,
-      this.state.Shares
+      this.state.DEPOSIT2,
+      this.state.TOKENADDRESS2,
+      this.state.STARTTIME2,
+      this.state.STOPTIME2,
+      this.state.ERC721ADDRESS2,
+      this.state.SHARES
     );
   }
   selectMenuContent() {
@@ -318,27 +367,27 @@ export default class Home extends React.Component<{
               <div className="item"><h1>Create Stream1</h1></div>
               <div className="item">
                 <label>DEPOSIT</label>
-                <input id="" name="" onChange={this.updateDepositInput.bind(this)} placeholder="deposit token amount" type="text" />
+                <input id="" name="" value={this.state.DEPOSIT} onChange={this.updateDepositInput.bind(this)} placeholder="deposit token amount" type="text" />
               </div>
               <div className="item">
                 <label>TOKENADDRESS</label>
-                <input id="" name="" onChange={this.updateTokenAddressInput.bind(this)} placeholder="ERC20 Token Address" type="text" />
+                <input id="" name="" value={this.state.TOKENADDRESS} onChange={this.updateTokenAddressInput.bind(this)} placeholder="ERC20 Token Address" type="text" />
               </div>
               <div className="item">
                 <label>STARTTIME</label>
-                <input id="phone-num" name="" onChange={this.updateStartTimeInput.bind(this)} placeholder="Vesting Start Timestamp" type="text" />
+                <input id="phone-num" name="" value={this.state.STARTTIME} onChange={this.updateStartTimeInput.bind(this)} placeholder="Vesting Start Timestamp" type="text" />
               </div>
               <div className="item">
                 <label>STOPTIME</label>
-                <input id="" name="" onChange={this.updateStopTimeInput.bind(this)} placeholder="Vesting End Timestamp" type="text" />
+                <input id="" name="" value={this.state.STOPTIME} onChange={this.updateStopTimeInput.bind(this)} placeholder="Vesting End Timestamp" type="text" />
               </div>
               <div className="item">
                 <label>ERC721ADDRESS</label>
-                <input id="" name="" onChange={this.updateErc721AddressInput.bind(this)} placeholder="ERC721 Address" type="text" />
+                <input id="" name="" value={this.state.ERC721ADDRESS} onChange={this.updateErc721AddressInput.bind(this)} placeholder="ERC721 Address" type="text" />
               </div>
               <div className="item">
                 <label>NFTTOTALSUPPLY</label>
-                <input id="" name="" onChange={this.updateNftTotalSupplyInput.bind(this)} placeholder="ERC721 TotalSupply" type="text" />
+                <input id="" name="" value={this.state.NFTTOTALSUPPLY} onChange={this.updateNftTotalSupplyInput.bind(this)} placeholder="ERC721 TotalSupply" type="text" />
               </div>
             </div>
             <div style={{
@@ -411,7 +460,8 @@ export default class Home extends React.Component<{
               </div>
               <div className="item">
                 <label>StreamID</label>
-                <input type="text" onChange={this.updateCheckBalanceStreamIDInput.bind(this)} name="name" />
+                <input type="text" value={this.state.CheckBalanceStreamID}
+                  onChange={this.updateCheckBalanceStreamIDInput.bind(this)} name="name" />
                 {/* <input id="" name="" value={this.props.commonStore!.stream1NftTotalSupply} disabled type="text" /> */}
               </div>
             </div>
@@ -508,7 +558,8 @@ export default class Home extends React.Component<{
               </div>
               <div className="item">
                 <label>StreamID</label>
-                <input type="text" onChange={this.updateCheckBalanceStreamIDInput.bind(this)} name="name" />
+                <input type="text" value={this.state.CheckBalanceStreamID}
+                  onChange={this.updateCheckBalanceStreamIDInput.bind(this)} name="name" />
               </div>
             </div>
             <div style={{
@@ -629,13 +680,22 @@ export default class Home extends React.Component<{
                 <div className="item"><h1>Sender WithDraw From Stream1</h1></div>
                 <div className="item">
                   <label>StreamID</label>
-                  <input id="" name="" onChange={this.updateStreamIdInput.bind(this)} placeholder="StreamID To WithDraw" type="text" />
+                  <input id="" name="" value={this.state.StreamID}
+                    onChange={this.updateStreamIdInput.bind(this)} placeholder="StreamID To WithDraw" type="text" />
                 </div>
               </div>
               <div className="button-wrap">
-                <Button type={`primary`} onClick={() => {
+                <Button type={`primary`} onClick={async () => {
                   if (!this.state.StreamID || this.state.StreamID.length <= 0) {
                     alert("StreamID Can't Be Null");
+                    return;
+                  }
+                  await this.props.commonStore!.getStream1Info(this.state.StreamID);
+                  const stoptime = this.props.commonStore!.stream1StopTime;
+                  this.props.commonStore!.getCurrentBlockTimeStamp();
+                  const cuurenttime = this.props.commonStore!.currentBlockTime;
+                  if (cuurenttime < stoptime) {
+                    alert("Vesting Not Finish");
                     return;
                   }
                   this.props.commonStore!.senderWithdraw(this.state.StreamID);
@@ -654,27 +714,33 @@ export default class Home extends React.Component<{
 
               <div className="item">
                 <label>DEPOSIT</label>
-                <input id="" name="" onChange={this.updateDepositInput.bind(this)} placeholder="Deposit Token Amount" type="text" />
+                <input id="" name="" value={this.state.DEPOSIT2}
+                  onChange={this.updateDeposit2Input} placeholder="Deposit Token Amount" type="text" />
               </div>
               <div className="item">
                 <label>TOKENADDRESS</label>
-                <input id="" name="" onChange={this.updateTokenAddressInput.bind(this)} placeholder="ERC20 Token Address" type="text" />
+                <input id="" name="" value={this.state.TOKENADDRESS2}
+                  onChange={this.updateTokenAddress2Input} placeholder="ERC20 Token Address" type="text" />
               </div>
               <div className="item">
                 <label>STARTTIME</label>
-                <input id="phone-num" name="" onChange={this.updateStartTimeInput.bind(this)} placeholder="Vesting Start Timestamp" type="text" />
+                <input id="phone-num" value={this.state.STARTTIME2} name=""
+                  onChange={this.updateStartTime2Input.bind(this)} placeholder="Vesting Start Timestamp" type="text" />
               </div>
               <div className="item">
                 <label>STOPTIME</label>
-                <input id="" name="" onChange={this.updateStopTimeInput.bind(this)} placeholder="Vesting End Timestamp" type="text" />
+                <input id="" name="" value={this.state.STOPTIME2}
+                  onChange={this.updateStopTime2Input.bind(this)} placeholder="Vesting End Timestamp" type="text" />
               </div>
               <div className="item">
                 <label>ERC721ADDRESS</label>
-                <input id="" name="" onChange={this.updateErc721AddressInput.bind(this)} placeholder="ERC721 Address" type="text" />
+                <input id="" name="" value={this.state.ERC721ADDRESS2}
+                  onChange={this.updateErc721Address2Input.bind(this)} placeholder="ERC721 Address" type="text" />
               </div>
               <div className="item">
                 <label>SHARES</label>
-                <input id="" name="" onChange={this.updateSharesInput.bind(this)} placeholder="eg [{ 'tokenid': 0, 'share': 1000 }]" type="text" />
+                <input id="" name="" value={this.state.SHARES}
+                  onChange={this.updateSharesInput.bind(this)} placeholder="eg [{ 'tokenid': 0, 'share': 1000 }]" type="text" />
               </div>
             </div>
             <div style={{
@@ -808,23 +874,18 @@ export default class Home extends React.Component<{
                 <label>erc721Address</label>
                 <input id="" name="" value={this.props.commonStore!.stream2Erc721Address} disabled type="text" />
               </div>
-              {/* <div className="item">
-                <label>nftTotalSupply</label>
-                <input id="" name="" value={this.props.commonStore!.stream1NftTotalSupply} disabled type="text" />
-              </div> */}
               <div className="item">
                 <label>StreamID</label>
-                <input type="text" onChange={this.updateCheckBalanceStreamIDInput.bind(this)} name="name" />
-                {/* <input id="" name="" value={this.props.commonStore!.stream1NftTotalSupply} disabled type="text" /> */}
+                <input type="text" value={this.state.CheckBalanceStream2ID} onChange={this.updateCheckBalanceStream2IDInput} name="name" />
               </div>
             </div>
             <div className="button-wrap">
               <Button type={`primary`} onClick={async () => {
-                if (!this.state.CheckBalanceStreamID || this.state.CheckBalanceStreamID.length <= 0) {
+                if (!this.state.CheckBalanceStream2ID || this.state.CheckBalanceStream2ID.length <= 0) {
                   alert("StreamID Can't Be Null");
                   return;
                 }
-                await this.props.commonStore!.getStream2Info(this.state.CheckBalanceStreamID);
+                await this.props.commonStore!.getStream2Info(this.state.CheckBalanceStream2ID);
               }}>Get StreamInfo</Button>
             </div>
           </div>
@@ -838,11 +899,12 @@ export default class Home extends React.Component<{
               <div className="item"><h1>Stream2 Balance</h1></div>
               <div className="item">
                 <label>Vesting Balance</label>
-                <input id="" name="" value={this.state.withdrawableBalance} disabled type="text" />
+                <input id="" name="" value={this.state.withdrawableBalance2} disabled type="text" />
               </div>
               <div className="item">
                 <label>Stream2ID</label>
-                <input type="text" onChange={this.updateCheckBalanceStreamIDInput.bind(this)} name="name" />
+                <input type="text" value={this.state.CheckBalanceStream2ID}
+                  onChange={this.updateCheckBalanceStream2IDInput.bind(this)} name="name" />
               </div>
             </div>
             <div style={{
@@ -855,7 +917,7 @@ export default class Home extends React.Component<{
                 marginLeft: '20px'
               }}>
                 <Button type={`primary`} onClick={async () => {
-                  if (!this.state.CheckBalanceStreamID || this.state.CheckBalanceStreamID.length <= 0) {
+                  if (!this.state.CheckBalanceStream2ID || this.state.CheckBalanceStream2ID.length <= 0) {
                     alert("StreamID Can't Be Null");
                     return;
                   }
@@ -867,11 +929,11 @@ export default class Home extends React.Component<{
                 display: `flex`,
               }}>
                 <Button type={`primary`} onClick={() => {
-                  if (!this.state.CheckBalanceStreamID || this.state.CheckBalanceStreamID.length <= 0) {
+                  if (!this.state.CheckBalanceStream2ID || this.state.CheckBalanceStream2ID.length <= 0) {
                     alert("StreamID Can't Be Null");
                     return;
                   }
-                  this.props.commonStore!.withdraw2(this.state.CheckBalanceStreamID);
+                  this.props.commonStore!.withdraw2(this.state.CheckBalanceStream2ID);
                 }}>Withdraw</Button>
               </div>
             </div>
@@ -922,13 +984,22 @@ export default class Home extends React.Component<{
                 <div className="item"><h1>Sender WithDraw From Stream2</h1></div>
                 <div className="item">
                   <label>Stream2ID</label>
-                  <input id="" name="" onChange={this.updateStream2IdInput.bind(this)} placeholder="Stream2ID To WithDraw" type="text" />
+                  <input id="" name="" value={this.state.Stream2ID}
+                    onChange={this.updateStream2IdInput.bind(this)} placeholder="Stream2ID To WithDraw" type="text" />
                 </div>
               </div>
               <div className="button-wrap">
-                <Button type={`primary`} onClick={() => {
+                <Button type={`primary`} onClick={async () => {
                   if (!this.state.Stream2ID || this.state.Stream2ID.length <= 0) {
                     alert("Stream2ID Can't Be Null");
+                    return;
+                  }
+                  await this.props.commonStore!.getStream2Info(this.state.Stream2ID);
+                  const stoptime = this.props.commonStore!.stream2StopTime;
+                  this.props.commonStore!.getCurrentBlockTimeStamp();
+                  const cuurenttime = this.props.commonStore!.currentBlockTime;
+                  if (cuurenttime < stoptime) {
+                    alert("Vesting Not Finish");
                     return;
                   }
                   this.props.commonStore!.senderWithdraw2(this.state.Stream2ID);
@@ -960,11 +1031,13 @@ export default class Home extends React.Component<{
               <div className="item"><h1>Transfer NFT</h1></div>
               <div className="item">
                 <label>Recipient</label>
-                <input id="" name="" onChange={this.updateRecipientInput.bind(this)} placeholder="Recipient Address" type="text" />
+                <input id="" name="" value={this.state.Recipient}
+                  onChange={this.updateRecipientInput.bind(this)} placeholder="Recipient Address" type="text" />
               </div>
               <div className="item">
                 <label>TokenID</label>
-                <input id="" name="" onChange={this.updateSendTokenIDInput.bind(this)} placeholder="TokenId To Send" type="text" />
+                <input id="" name="" value={this.state.SendTokenId}
+                  onChange={this.updateSendTokenIDInput.bind(this)} placeholder="TokenId To Send" type="text" />
               </div>
             </div>
             <div className="button-wrap">

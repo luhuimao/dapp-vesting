@@ -106,7 +106,9 @@ export default class CommonStore {
   }
 
   private async connectMetamask() {
-    this.web3Provider = window["ethereum"]
+    this.web3Provider = window["ethereum"];
+    await this.web3Provider.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x4' }] });
+
     this.web3Provider.on('accountsChanged', async (accounts) => {
       console.log("metamask账户变更")
       if (accounts.length === 0) {  // metamask连上的账户全部断开了
@@ -302,6 +304,12 @@ export default class CommonStore {
     // 获取所有工具
     // this.tools = await this.coinToolsPublicContractInstance!.methods.getTools(0, 0).call()
     // console.log("tools", this.tools)
+  }
+
+  async getCurrentBlockTimeStamp() {
+    this.currentBlockTime = await Util.timeoutWrapperCall(async () => {
+      return (await this.web3Instance!.eth.getBlock("latest")).timestamp;
+    });
   }
 
   async createStream(
@@ -630,9 +638,9 @@ export default class CommonStore {
       this.stream1RatePerSecond = rel.ratePerSecond;
       this.stream1Erc721Address = rel.erc721Address;
       this.stream1NftTotalSupply = rel.nftTotalSupply;
-      Modal.success({
-        content: "get Stream1Info succeed！！！"
-      })
+      // Modal.success({
+      //   content: "get Stream1Info succeed！！！"
+      // })
     } catch (err) {
       console.log(err)
     }
@@ -657,9 +665,9 @@ export default class CommonStore {
       this.stream2RemainingBalance = rel.remainingBalance;
       this.stream2RatePerSecond = rel.ratePerSecond;
       this.stream2Erc721Address = rel.erc721Address;
-      Modal.success({
-        content: "get Stream2Info succeed！！！"
-      })
+      // Modal.success({
+      //   content: "get Stream2Info succeed！！！"
+      // })
     } catch (err) {
       console.log(err)
     }

@@ -65,92 +65,44 @@ export default class Home extends React.Component<{
   }
   //vesting1 event handler
   updateTokenAddressInput(event) {
-    // Extract the current value of the customer from state
-    var tokenaddr = this.state.TOKENADDRESS;
-
-    // Extract the value of the input element represented by `target`
-    var modifiedValue = event.target.value;
-    // Update the customer object's first name
-    tokenaddr = modifiedValue;
-
     // Update the state object
     this.setState({
-      TOKENADDRESS: tokenaddr
+      TOKENADDRESS: event.target.value
     });
   }
 
   updateDepositInput(event) {
-    // Extract the current value of the customer from state
-    var deposit = this.state.DEPOSIT;
-
-    // Extract the value of the input element represented by `target`
-    var modifiedValue = event.target.value;
-    // Update the customer object's first name
-    deposit = modifiedValue;
-
     // Update the state object
     this.setState({
-      DEPOSIT: deposit
+      DEPOSIT: event.target.value
     });
   }
 
   updateStartTimeInput(event) {
-    // Extract the current value of the customer from state
-    var startTime = this.state.STARTTIME;
-
-    // Extract the value of the input element represented by `target`
-    var modifiedValue = event.target.value;
-    // Update the customer object's first name
-    startTime = modifiedValue;
-
     // Update the state object
     this.setState({
-      STARTTIME: startTime
+      STARTTIME: event.target.value
     });
   }
 
   updateStopTimeInput(event) {
-    // Extract the current value of the customer from state
-    var stopTime = this.state.STOPTIME;
-
-    // Extract the value of the input element represented by `target`
-    var modifiedValue = event.target.value;
-    // Update the customer object's first name
-    stopTime = modifiedValue;
-
     // Update the state object
     this.setState({
-      STOPTIME: stopTime
+      STOPTIME: event.target.value
     });
   }
 
   updateErc721AddressInput(event) {
-    // Extract the current value of the customer from state
-    var erc721Addr = this.state.ERC721ADDRESS;
-
-    // Extract the value of the input element represented by `target`
-    var modifiedValue = event.target.value;
-    // Update the customer object's first name
-    erc721Addr = modifiedValue;
-
     // Update the state object
     this.setState({
-      ERC721ADDRESS: erc721Addr
+      ERC721ADDRESS: event.target.value
     });
   }
 
   updateNftTotalSupplyInput(event) {
-    // Extract the current value of the customer from state
-    var totalSupply = this.state.NFTTOTALSUPPLY;
-
-    // Extract the value of the input element represented by `target`
-    var modifiedValue = event.target.value;
-    // Update the customer object's first name
-    totalSupply = modifiedValue;
-
     // Update the state object
     this.setState({
-      NFTTOTALSUPPLY: totalSupply
+      NFTTOTALSUPPLY: event.target.value
     });
   }
   //vesting2 event handler
@@ -203,92 +155,44 @@ export default class Home extends React.Component<{
   }
 
   updateStreamIdInput(event) {
-    // Extract the current value of the customer from state
-    var streamID = this.state.StreamID;
-
-    // Extract the value of the input element represented by `target`
-    var modifiedValue = event.target.value;
-    // Update the customer object's first name
-    streamID = modifiedValue;
-
     // Update the state object
     this.setState({
-      StreamID: streamID
+      StreamID: event.target.value
     });
   }
 
   updateStream2IdInput(event) {
-    // Extract the current value of the customer from state
-    var stream2ID = this.state.Stream2ID;
-
-    // Extract the value of the input element represented by `target`
-    var modifiedValue = event.target.value;
-    // Update the customer object's first name
-    stream2ID = modifiedValue;
-
     // Update the state object
     this.setState({
-      Stream2ID: stream2ID
+      Stream2ID: event.target.value
     });
   }
 
   updateWithdrawAmount(event) {
-    // Extract the current value of the customer from state
-    var withdrawAmount = this.state.WithdrawAmount;
-
-    // Extract the value of the input element represented by `target`
-    var modifiedValue = event.target.value;
-    // Update the customer object's first name
-    withdrawAmount = modifiedValue;
-
     // Update the state object
     this.setState({
-      WithdrawAmount: withdrawAmount
+      WithdrawAmount: event.target.value
     });
   }
 
   updateRecipientInput(event) {
-    // Extract the current value of the customer from state
-    var recipient = this.state.Recipient;
-
-    // Extract the value of the input element represented by `target`
-    var modifiedValue = event.target.value;
-    // Update the customer object's first name
-    recipient = modifiedValue;
-
     // Update the state object
     this.setState({
-      Recipient: recipient
+      Recipient: event.target.value
     });
   }
 
   updateSendTokenIDInput(event) {
-    // Extract the current value of the customer from state
-    var sendTokenId = this.state.SendTokenId;
-
-    // Extract the value of the input element represented by `target`
-    var modifiedValue = event.target.value;
-    // Update the customer object's first name
-    sendTokenId = modifiedValue;
-
     // Update the state object
     this.setState({
-      SendTokenId: sendTokenId
+      SendTokenId: event.target.value
     });
   }
 
   updateCheckBalanceStreamIDInput(event) {
-    // Extract the current value of the customer from state
-    var checkBalanceStreamID = this.state.CheckBalanceStreamID;
-
-    // Extract the value of the input element represented by `target`
-    var modifiedValue = event.target.value;
-    // Update the customer object's first name
-    checkBalanceStreamID = modifiedValue;
-
     // Update the state object
     this.setState({
-      CheckBalanceStreamID: checkBalanceStreamID
+      CheckBalanceStreamID: event.target.value
     });
   }
 
@@ -583,9 +487,17 @@ export default class Home extends React.Component<{
                 float: `right`,
                 display: `flex`,
               }}>
-                <Button type={`primary`} onClick={() => {
+                <Button type={`primary`} onClick={async () => {
                   if (!this.state.CheckBalanceStreamID || this.state.CheckBalanceStreamID.length <= 0) {
                     alert("StreamID Can't Be Null");
+                    return;
+                  }
+                  await this.props.commonStore!.getStream1Info(this.state.CheckBalanceStreamID);
+                  const stoptime = this.props.commonStore!.stream1StopTime;
+                  this.props.commonStore!.getCurrentBlockTimeStamp();
+                  const currenttime = this.props.commonStore!.currentBlockTime;
+                  if (currenttime >= stoptime) {
+                    alert("Vesting Finish");
                     return;
                   }
                   this.props.commonStore!.withdraw(this.state.CheckBalanceStreamID);
@@ -636,38 +548,7 @@ export default class Home extends React.Component<{
           </div> */}
         </div>
       )
-    }
-    //  else if (this.props.homeStore!.selectedMenu === "withdraw") {
-    //   return (
-    //     <div className="menu-content">
-    //       <div style={{
-    //         display: `flex`,
-    //         flexDirection: `column`,
-    //         marginTop: 100
-    //       }}>
-    //         <div className="wrap">
-    //           <div className="top">
-    //             <div className="item"><h1>WithDraw From Stream1</h1></div>
-    //             <div className="item">
-    //               <label>StreamID</label>
-    //               <input id="" name="" onChange={this.updateStreamIdInput.bind(this)} placeholder="StreamID To WithDraw" type="text" />
-    //             </div>
-    //           </div>
-    //           <div className="button-wrap">
-    //             <Button type={`primary`} onClick={() => {
-    //               if (!this.state.StreamID || this.state.StreamID.length <= 0) {
-    //                 alert("StreamID Can't Be Null");
-    //                 return;
-    //               }
-    //               this.props.commonStore!.withdraw(this.state.StreamID);
-    //             }}>Withdraw</Button>
-    //           </div>
-    //         </div>
-    //       </div>
-    //     </div>
-    //   )
-    // } 
-    else if (this.props.homeStore!.selectedMenu === "senderWithdraw") {
+    } else if (this.props.homeStore!.selectedMenu === "senderWithdraw") {
       return (
         <div className="menu-content">
           <div style={{
@@ -928,9 +809,17 @@ export default class Home extends React.Component<{
                 float: `right`,
                 display: `flex`,
               }}>
-                <Button type={`primary`} onClick={() => {
+                <Button type={`primary`} onClick={async () => {
                   if (!this.state.CheckBalanceStream2ID || this.state.CheckBalanceStream2ID.length <= 0) {
                     alert("StreamID Can't Be Null");
+                    return;
+                  }
+                  await this.props.commonStore!.getStream2Info(this.state.CheckBalanceStream2ID);
+                  const stoptime = this.props.commonStore!.stream2StopTime;
+                  this.props.commonStore!.getCurrentBlockTimeStamp();
+                  const currenttime = this.props.commonStore!.currentBlockTime;
+                  if (currenttime >= stoptime) {
+                    alert("Vesting Finish");
                     return;
                   }
                   this.props.commonStore!.withdraw2(this.state.CheckBalanceStream2ID);
@@ -940,38 +829,7 @@ export default class Home extends React.Component<{
           </div>
         </div>
       )
-    }
-    // else if (this.props.homeStore!.selectedMenu === "withdraw2") {
-    //   return (
-    //     <div className="menu-content">
-    //       <div style={{
-    //         display: `flex`,
-    //         flexDirection: `column`,
-    //         marginTop: 100
-    //       }}>
-    //         <div className="wrap">
-    //           <div className="top">
-    //             <div className="item"><h1>WithDraw From Stream2</h1></div>
-    //             <div className="item">
-    //               <label>StreamID</label>
-    //               <input id="" name="" onChange={this.updateStreamIdInput.bind(this)} placeholder="StreamID To WithDraw" type="text" />
-    //             </div>
-    //           </div>
-    //           <div className="button-wrap">
-    //             <Button type={`primary`} onClick={() => {
-    //               if (!this.state.StreamID || this.state.StreamID.length <= 0) {
-    //                 alert("StreamID Can't Be Null");
-    //                 return;
-    //               }
-    //               this.props.commonStore!.withdraw2(this.state.StreamID);
-    //             }}>Withdraw</Button>
-    //           </div>
-    //         </div>
-    //       </div>
-    //     </div>
-    //   )
-    // } 
-    else if (this.props.homeStore!.selectedMenu === "senderWithdraw2") {
+    } else if (this.props.homeStore!.selectedMenu === "senderWithdraw2") {
       return (
         <div className="menu-content">
           <div style={{
@@ -1125,9 +983,6 @@ export default class Home extends React.Component<{
                     <Menu.Item key="balance" icon={<ToolOutlined />}>
                       Stream1 Balance
                     </Menu.Item>
-                    {/* <Menu.Item key="withdraw" icon={<ToolOutlined />}>
-                      Withdraw Stream1
-                    </Menu.Item> */}
                     <Menu.Item key="senderWithdraw" icon={<ToolOutlined />}>
                       Sender Withdraw Stream1
                     </Menu.Item>
@@ -1140,9 +995,6 @@ export default class Home extends React.Component<{
                     <Menu.Item key="stream2Balance" icon={<ToolOutlined />}>
                       Stream2 Balance
                     </Menu.Item>
-                    {/* <Menu.Item key="withdraw2" icon={<ToolOutlined />}>
-                      Withdraw Stream2
-                    </Menu.Item> */}
                     <Menu.Item key="senderWithdraw2" icon={<ToolOutlined />}>
                       Sender Withdraw Stream2
                     </Menu.Item>

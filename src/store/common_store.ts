@@ -107,7 +107,10 @@ export default class CommonStore {
 
   private async connectMetamask() {
     this.web3Provider = window["ethereum"];
-    await this.web3Provider.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x4' }] });
+    const networkID = await this.web3Provider.request({ method: 'net_version' });
+    if (networkID != 4) {
+      await this.web3Provider.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x4' }] });
+    }
 
     this.web3Provider.on('accountsChanged', async (accounts) => {
       console.log("metamask账户变更")

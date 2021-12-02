@@ -635,8 +635,19 @@ export default class CommonStore {
       this.stream1Sender = rel.sender;
       this.stream1Deposit = rel.deposit;
       this.stream1TokenAddress = rel.tokenAddress;
-      this.stream1StartTime = rel.startTime;
-      this.stream1StopTime = rel.stopTime;
+      // this.stream1StartTime = rel.startTime;
+      // // Hours part from the timestamp
+      // var hours = date.getHours();
+      // // Minutes part from the timestamp
+      // var minutes = "0" + date.getMinutes();
+      // // Seconds part from the timestamp
+      // var seconds = "0" + date.getSeconds();
+      // // Will display time in 10:30:23 format
+      // var formattedTime = hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+      const startdate = new Date(rel.startTime * 1000);
+      const stopdate = new Date(rel.stopTime * 1000);
+      this.stream1StartTime = startdate.toLocaleDateString("en-US") + startdate.toLocaleTimeString("en-US");
+      this.stream1StopTime = stopdate.toLocaleDateString("en-US") + stopdate.toLocaleTimeString("en-US");
       this.stream1RemainingBalance = rel.remainingBalance;
       this.stream1RatePerSecond = rel.ratePerSecond;
       this.stream1Erc721Address = rel.erc721Address;
@@ -663,8 +674,12 @@ export default class CommonStore {
       this.stream2Sender = rel.sender;
       this.stream2Deposit = rel.deposit;
       this.stream2TokenAddress = rel.tokenAddress;
-      this.stream2StartTime = rel.startTime;
-      this.stream2StopTime = rel.stopTime;
+      const startdate = new Date(rel.startTime * 1000);
+      const stopdate = new Date(rel.stopTime * 1000);
+      this.stream2StartTime = startdate.toLocaleDateString("en-US") + startdate.toLocaleTimeString("en-US");
+      this.stream2StopTime = stopdate.toLocaleDateString("en-US") + stopdate.toLocaleTimeString("en-US");
+      // this.stream2StartTime = rel.startTime;
+      // this.stream2StopTime = rel.stopTime;
       this.stream2RemainingBalance = rel.remainingBalance;
       this.stream2RatePerSecond = rel.ratePerSecond;
       this.stream2Erc721Address = rel.erc721Address;

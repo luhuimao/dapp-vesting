@@ -2,12 +2,12 @@ import React from 'react';
 import { inject, observer } from 'mobx-react';
 import './home.css'
 import {
-  Image, Layout, Menu, Button
+  Image, Layout, Menu, Button, DatePicker, Space
 } from 'antd';
+import 'antd/dist/antd.css';
 import { ToolOutlined } from '@ant-design/icons';
 import HomeStore from '../store/home_store';
 import CommonStore from '../store/common_store';
-
 
 import Footer from '../component/footer';
 import Header from '../component/header';
@@ -25,6 +25,7 @@ export default class Home extends React.Component<{
 
   constructor(props) {
     super(props);
+    const { RangePicker } = DatePicker;
 
     this.state = {
       DEPOSIT: '',
@@ -62,7 +63,59 @@ export default class Home extends React.Component<{
     this.updateStopTime2Input = this.updateStopTime2Input.bind(this);
     this.updateErc721Address2Input = this.updateErc721Address2Input.bind(this);
     this.updateCheckBalanceStream2IDInput = this.updateCheckBalanceStream2IDInput.bind(this);
+
+    this.onStartTimeChange = this.onStartTimeChange.bind(this);
+    this.onStopTimeChange = this.onStopTimeChange.bind(this);
+    this.onStartTimeOk = this.onStartTimeOk.bind(this);
+    this.onStopTimeOk = this.onStopTimeOk.bind(this);
+
+    this.onStartTime2Change = this.onStartTime2Change.bind(this);
+    this.onStopTime2Change = this.onStopTime2Change.bind(this);
+    this.onStartTime2Ok = this.onStartTime2Ok.bind(this);
+    this.onStopTime2Ok = this.onStopTime2Ok.bind(this);
   }
+
+  onStartTimeChange(value, dateString) {
+    console.log('Selected Time: ', value);
+    let d = new Date(value)
+    const starttime = parseInt((d.getTime() / 1000).toString());
+    console.log(parseInt((d.getTime() / 1000).toString()));
+    console.log('Formatted Selected Time: ', dateString);
+    this.setState({
+      STARTTIME: starttime
+    });
+  }
+
+  onStopTimeChange(value, dateString) {
+    console.log('Selected Time: ', value);
+    let d = new Date(value)
+    const stoptime = parseInt((d.getTime() / 1000).toString());
+    console.log(parseInt((d.getTime() / 1000).toString()));
+    // console.log(Math.round(new Date() / 1000));
+    console.log('Formatted Selected Time: ', dateString);
+    this.setState({
+      STOPTIME: stoptime
+    });
+  }
+
+  onStartTimeOk(value) {
+    console.log('onOk: ', value);
+    let d = new Date(value)
+    const starttime = parseInt((d.getTime() / 1000).toString());
+    this.setState({
+      STARTTIME: starttime
+    });
+  }
+
+  onStopTimeOk(value) {
+    console.log('onOk: ', value);
+    let d = new Date(value)
+    const stoptime = parseInt((d.getTime() / 1000).toString());
+    this.setState({
+      STOPTIME: stoptime
+    });
+  }
+
   //vesting1 event handler
   updateTokenAddressInput(event) {
     // Update the state object
@@ -105,7 +158,7 @@ export default class Home extends React.Component<{
       NFTTOTALSUPPLY: event.target.value
     });
   }
-  //vesting2 event handler
+  //===============================vesting2 event handler begin======================================
   updateDeposit2Input(event) {
     // Update the state object
     this.setState({
@@ -154,10 +207,44 @@ export default class Home extends React.Component<{
     });
   }
 
-  updateStreamIdInput(event) {
-    // Update the state object
+  onStartTime2Change(value, dateString) {
+    console.log('Selected Time: ', value);
+    let d = new Date(value)
+    const starttime = parseInt((d.getTime() / 1000).toString());
+    console.log(parseInt((d.getTime() / 1000).toString()));
+    console.log('Formatted Selected Time: ', dateString);
     this.setState({
-      StreamID: event.target.value
+      STARTTIME2: starttime
+    });
+  }
+
+  onStopTime2Change(value, dateString) {
+    console.log('Selected Time: ', value);
+    let d = new Date(value)
+    const stoptime = parseInt((d.getTime() / 1000).toString());
+    console.log(parseInt((d.getTime() / 1000).toString()));
+    // console.log(Math.round(new Date() / 1000));
+    console.log('Formatted Selected Time: ', dateString);
+    this.setState({
+      STOPTIME2: stoptime
+    });
+  }
+
+  onStartTime2Ok(value) {
+    console.log('onOk: ', value);
+    let d = new Date(value)
+    const starttime = parseInt((d.getTime() / 1000).toString());
+    this.setState({
+      STARTTIME2: starttime
+    });
+  }
+
+  onStopTime2Ok(value) {
+    console.log('onOk: ', value);
+    let d = new Date(value)
+    const stoptime = parseInt((d.getTime() / 1000).toString());
+    this.setState({
+      STOPTIME2: stoptime
     });
   }
 
@@ -167,6 +254,14 @@ export default class Home extends React.Component<{
       Stream2ID: event.target.value
     });
   }
+  //===============================vesting2 event handler end======================================
+  updateStreamIdInput(event) {
+    // Update the state object
+    this.setState({
+      StreamID: event.target.value
+    });
+  }
+
 
   updateWithdrawAmount(event) {
     // Update the state object
@@ -277,13 +372,29 @@ export default class Home extends React.Component<{
                 <label>TOKENADDRESS</label>
                 <input id="" name="" value={this.state.TOKENADDRESS} onChange={this.updateTokenAddressInput.bind(this)} placeholder="ERC20 Token Address" type="text" />
               </div>
+              {/* <div className="item">
+                <label>STARTTIME-TIMESTAMP</label>
+                <input id="phone-num" name="" disabled value={this.state.STARTTIME} onChange={this.updateStartTimeInput.bind(this)} placeholder="Vesting Start Timestamp" type="text" />
+              </div> */}
+              {/* <div className="item">
+                <label>STOPTIME-TIMESTAMP</label>
+                <input id="" name="" disabled value={this.state.STOPTIME} onChange={this.updateStopTimeInput.bind(this)} placeholder="Vesting End Timestamp" type="text" />
+              </div> */}
               <div className="item">
                 <label>STARTTIME</label>
-                <input id="phone-num" name="" value={this.state.STARTTIME} onChange={this.updateStartTimeInput.bind(this)} placeholder="Vesting Start Timestamp" type="text" />
+                <Space direction="vertical" size={12}>
+                  <DatePicker showTime onChange={this.onStartTimeChange.bind(this)} onOk={this.onStartTimeOk.bind(this)} />
+                </Space>
               </div>
               <div className="item">
                 <label>STOPTIME</label>
-                <input id="" name="" value={this.state.STOPTIME} onChange={this.updateStopTimeInput.bind(this)} placeholder="Vesting End Timestamp" type="text" />
+                <Space direction="vertical" size={12}>
+                  <DatePicker showTime onChange={this.onStopTimeChange.bind(this)} onOk={this.onStopTimeOk} />
+                </Space>
+              </div>
+              <div className="item">
+                <label>DURATION</label>
+                <input id="" name="" disabled value={this.state.STOPTIME - this.state.STARTTIME} placeholder="DURATION" type="text" />
               </div>
               <div className="item">
                 <label>ERC721ADDRESS</label>
@@ -603,7 +714,7 @@ export default class Home extends React.Component<{
                 <input id="" name="" value={this.state.TOKENADDRESS2}
                   onChange={this.updateTokenAddress2Input} placeholder="ERC20 Token Address" type="text" />
               </div>
-              <div className="item">
+              {/* <div className="item">
                 <label>STARTTIME</label>
                 <input id="phone-num" value={this.state.STARTTIME2} name=""
                   onChange={this.updateStartTime2Input.bind(this)} placeholder="Vesting Start Timestamp" type="text" />
@@ -612,6 +723,18 @@ export default class Home extends React.Component<{
                 <label>STOPTIME</label>
                 <input id="" name="" value={this.state.STOPTIME2}
                   onChange={this.updateStopTime2Input.bind(this)} placeholder="Vesting End Timestamp" type="text" />
+              </div> */}
+              <div className="item">
+                <label>STARTTIME</label>
+                <Space direction="vertical" size={12}>
+                  <DatePicker showTime onChange={this.onStartTime2Change.bind(this)} onOk={this.onStartTime2Ok.bind(this)} />
+                </Space>
+              </div>
+              <div className="item">
+                <label>STOPTIME</label>
+                <Space direction="vertical" size={12}>
+                  <DatePicker showTime onChange={this.onStopTime2Change.bind(this)} onOk={this.onStopTime2Ok} />
+                </Space>
               </div>
               <div className="item">
                 <label>ERC721ADDRESS</label>

@@ -126,9 +126,14 @@ export default class Home extends React.Component<{
 
   updateDepositInput(event) {
     // Update the state object
-    this.setState({
-      DEPOSIT: event.target.value
-    });
+    const re = /^-?[0-9]\d*\.?\d*$/;
+    // const re = /^[0-9\b]+$/;
+    if (event.target.value === '' || re.test(event.target.value)) {
+      this.setState({ DEPOSIT: event.target.value })
+    }
+    // this.setState({
+    //   DEPOSIT: event.target.value
+    // });
   }
 
   updateStartTimeInput(event) {
@@ -154,16 +159,28 @@ export default class Home extends React.Component<{
 
   updateNftTotalSupplyInput(event) {
     // Update the state object
-    this.setState({
-      NFTTOTALSUPPLY: event.target.value
-    });
+    const re = /^[0-9\b]+$/;
+    if (event.target.value === '' || re.test(event.target.value)) {
+      this.setState({ NFTTOTALSUPPLY: event.target.value })
+    }
+    // this.setState({
+    //   NFTTOTALSUPPLY: event.target.value
+    // });
   }
   //===============================vesting2 event handler begin======================================
   updateDeposit2Input(event) {
     // Update the state object
-    this.setState({
-      DEPOSIT2: event.target.value
-    });
+    // this.setState({
+    //   DEPOSIT2: event.target.value
+    // });
+
+    const re = /^-?[0-9]\d*\.?\d*$/;
+    // const re = /^[0-9\b]+$/;
+    if (event.target.value === '' || re.test(event.target.value)) {
+      this.setState({
+        DEPOSIT2: event.target.value
+      })
+    }
   }
 
   updateTokenAddress2Input(event) {
@@ -366,11 +383,13 @@ export default class Home extends React.Component<{
               <div className="item"><h1>Create Stream1</h1></div>
               <div className="item">
                 <label>DEPOSIT</label>
-                <input id="" name="" value={this.state.DEPOSIT} onChange={this.updateDepositInput.bind(this)} placeholder="deposit token amount" type="text" />
+                <input id="" name="" value={this.state.DEPOSIT}
+                  onChange={this.updateDepositInput.bind(this)} placeholder="deposit token amount" type="text" />
               </div>
               <div className="item">
                 <label>TOKENADDRESS</label>
-                <input id="" name="" value={this.state.TOKENADDRESS} onChange={this.updateTokenAddressInput.bind(this)} placeholder="ERC20 Token Address" type="text" />
+                <input id="" name="" value={this.state.TOKENADDRESS}
+                  onChange={this.updateTokenAddressInput.bind(this)} placeholder="ERC20 Token Address" type="text" />
               </div>
               {/* <div className="item">
                 <label>STARTTIME-TIMESTAMP</label>
@@ -398,11 +417,13 @@ export default class Home extends React.Component<{
               </div>
               <div className="item">
                 <label>ERC721ADDRESS</label>
-                <input id="" name="" value={this.state.ERC721ADDRESS} onChange={this.updateErc721AddressInput.bind(this)} placeholder="ERC721 Address" type="text" />
+                <input id="" name="" value={this.state.ERC721ADDRESS}
+                 onChange={this.updateErc721AddressInput.bind(this)} placeholder="ERC721 Address" type="text" />
               </div>
               <div className="item">
                 <label>NFTTOTALSUPPLY</label>
-                <input id="" name="" value={this.state.NFTTOTALSUPPLY} onChange={this.updateNftTotalSupplyInput.bind(this)} placeholder="ERC721 TotalSupply" type="text" />
+                <input id="" name="" value={this.state.NFTTOTALSUPPLY}
+                 onChange={this.updateNftTotalSupplyInput.bind(this)} placeholder="ERC721 TotalSupply" type="text" />
               </div>
             </div>
             <div style={{
@@ -744,7 +765,7 @@ export default class Home extends React.Component<{
               <div className="item">
                 <label>SHARES</label>
                 <input id="" name="" value={this.state.SHARES}
-                  onChange={this.updateSharesInput.bind(this)} placeholder="eg [{ 'tokenid': 0, 'share': 1000 }]" type="text" />
+                  onChange={this.updateSharesInput.bind(this)} placeholder='eg [{"tokenid":0,"share":10000}]' type="text" />
               </div>
             </div>
             <div style={{

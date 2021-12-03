@@ -12,7 +12,6 @@ import {
 } from 'antd';
 import { EthWallet } from "@pefish/js-coin-eth";
 import { NftShares } from '../util/type';
-
 const walletConnectConfig = {
   rpc: {
     1: config.rpcUrl
@@ -38,7 +37,7 @@ export default class CommonStore {
   @observable public allowanceOfVesting2: number = 0
 
   @observable public stream1Sender: string = "0"
-  @observable public stream1Deposit: number = 0
+  @observable public stream1Deposit: string = "0"
   @observable public stream1TokenAddress: string = "0"
   @observable public stream1StartTime: string = "0"
   @observable public stream1StopTime: string = "0"
@@ -48,7 +47,7 @@ export default class CommonStore {
   @observable public stream1NftTotalSupply: string = "0"
 
   @observable public stream2Sender: string = "0"
-  @observable public stream2Deposit: number = 0
+  @observable public stream2Deposit: string = "0"
   @observable public stream2TokenAddress: string = "0"
   @observable public stream2StartTime: string = "0"
   @observable public stream2StopTime: string = "0"
@@ -164,9 +163,9 @@ export default class CommonStore {
       (async () => {
         // 取余额
         console.log("取Test Token余额。。。")
-        this.userTestERC20Balance = await Util.timeoutWrapperCall(async () => {
+        this.userTestERC20Balance = StringUtil.unShiftedBy_(await Util.timeoutWrapperCall(async () => {
           return await this.testERC20ContractInstance!.methods.balanceOf(this.user).call({ from: this.user, })
-        })
+        }), 18)
       })(),
       (async () => {
         // 取余额
@@ -347,18 +346,32 @@ export default class CommonStore {
       return
     }
     const streamDuration = streamStopTime - streamStartTime;
-    if (depositAmount < streamDuration) {
+    const streamDurationBN = this.web3Instance!.utils.toBN(streamDuration);
+    const nftTotalSupplyBN = this.web3Instance!.utils.toBN(nftTotalSupply);
+    const depositAmountInWei = this.web3Instance!.utils.toWei(depositAmount.toString(), 'ether');
+    // const depositAmountInWei = depositAmount * 10 ** 18;
+
+    if (depositAmountInWei < streamDurationBN) {
       Modal.error({
         content: "depositAmount smaller than time streamDuration!"
       })
       return
     }
-    if (depositAmount % streamDuration != 0) {
-      Modal.error({
-        content: "depositAmount not multiple of time delta!"
-      })
-      return
-    }
+    console.log("depositAmountInWei:", depositAmountInWei);
+    // console.log(depositAmountInWei.mod(streamDurationBN.mul(nftTotalSupplyBN)));
+    // if (depositAmountInWei.mod(streamDurationBN.mul(nftTotalSupplyBN)).eq(this.web3Instance!.utils.toBN(0))) {
+    //   Modal.error({
+    //     content: "depositAmount not multiple of time delta!"
+    //   })
+    //   return
+    // }
+    // console.log(depositAmountInWei % (streamDuration * nftTotalSupply));
+    // if (depositAmountInWei % (streamDuration * nftTotalSupply) != 0) {
+    //   Modal.error({
+    //     content: "depositAmount not multiple of time delta!"
+    //   })
+    //   return
+    // }
     if (!this.approved) {
       Modal.error({
         content: "approve first!"
@@ -367,7 +380,7 @@ export default class CommonStore {
     }
     try {
       const result = await this.vesting1ContractInstance?.methods.createStream(
-        depositAmount,
+        depositAmountInWei.toString(),
         tokenAddr,
         streamStartTime,
         streamStopTime,
@@ -384,7 +397,7 @@ export default class CommonStore {
       }
 
       let latest_block = await this.web3Instance!.eth.getBlockNumber();
-      let historical_block = latest_block - 100;
+      let historical_block = latest_block - 10;
       const data_events = await this.vesting1ContractInstance?.getPastEvents(
         'CreateStream', // change if your looking for a different event
         { fromBlock: historical_block, toBlock: 'latest' }
@@ -436,12 +449,16 @@ export default class CommonStore {
       return
     }
     const streamDuration = streamStopTime - streamStartTime;
-    if (depositAmount < streamDuration) {
-      Modal.error({
-        content: "depositAmount smaller than time streamDuration!"
-      })
-      return
-    }
+    const depositAmountInWei = this.web3Instance!.utils.toWei(depositAmount.toString(), 'ether');
+    const streamDurationBN = this.web3Instance!.utils.toBN(streamDuration);
+    console.log("depositAmountInWei:", depositAmountInWei.toString());
+    console.log("streamDurationBN:", streamDurationBN.toString());
+    // if (depositAmountInWei < streamDurationBN) {
+    //   Modal.error({
+    //     content: "depositAmount smaller than time streamDuration!"
+    //   })
+    //   return
+    // }
     // if (depositAmount % streamDuration != 0) {
     //   Modal.error({
     //     content: "depositAmount not multiple of time delta!"
@@ -474,7 +491,7 @@ export default class CommonStore {
       console.log(`tokenIds ${tokenIds}`);
 
       const result = await this.vesting2ContractInstance?.methods.createStream21(
-        depositAmount,
+        depositAmountInWei.toString(),
         tokenAddr,
         streamStartTime,
         streamStopTime,
@@ -492,7 +509,7 @@ export default class CommonStore {
       }
 
       let latest_block = await this.web3Instance!.eth.getBlockNumber();
-      let historical_block = latest_block - 100;
+      let historical_block = latest_block - 10;
       const data_events = await this.vesting2ContractInstance?.getPastEvents(
         'CreateStream2', // change if your looking for a different event
         { fromBlock: historical_block, toBlock: 'latest' }
@@ -521,9 +538,21 @@ export default class CommonStore {
       return
     }
     const balance = await this.getWithdrawrableStreamBalance(streamID);
-    if (balance <= 0) {
+    if (Number(balance) <= 0) {
       Modal.error({
         content: "Error: balance is zero！！！"
+      })
+      return
+    }
+    await this.getStream1Info(streamID);
+    const date: any = new Date();
+    const date1: any = new Date(this.stream1StopTime);
+
+    console.log(Math.round(date1 / 1000))
+    console.log(Math.round(date / 1000))
+    if (Math.round(date / 1000) > Math.round(date1 / 1000)) {
+      Modal.error({
+        content: "Vesting End！！！"
       })
       return
     }
@@ -551,9 +580,22 @@ export default class CommonStore {
       return
     }
     const balance = await this.getWithdrawrableStream2Balance(streamID);
-    if (balance <= 0) {
+    if (Number(balance) <= 0) {
       Modal.error({
         content: "Error: balance is zero！！！"
+      })
+      return
+    }
+
+    await this.getStream2Info(streamID);
+    const date: any = new Date();
+    const date1: any = new Date(this.stream2StopTime);
+
+    console.log(Math.round(date1 / 1000))
+    console.log(Math.round(date / 1000))
+    if (Math.round(date / 1000) > Math.round(date1 / 1000)) {
+      Modal.error({
+        content: "Vesting End！！！"
       })
       return
     }
@@ -578,6 +620,18 @@ export default class CommonStore {
     if (balance <= 0) {
       Modal.error({
         content: "Error: sender balance is zero！！！"
+      })
+      return
+    }
+
+    await this.getStream1Info(streamID);
+    const date: any = new Date();
+    const date1: any = new Date(this.stream1StopTime);
+    console.log(Math.round(date1 / 1000))
+    console.log(Math.round(date / 1000))
+    if (Math.round(date / 1000) < Math.round(date1 / 1000)) {
+      Modal.error({
+        content: "Vesting Not End！！！"
       })
       return
     }
@@ -611,6 +665,18 @@ export default class CommonStore {
       })
       return
     }
+
+    await this.getStream2Info(stream2ID);
+    const date: any = new Date();
+    const date1: any = new Date(this.stream2StopTime);
+    console.log(Math.round(date1 / 1000))
+    console.log(Math.round(date / 1000))
+    if (Math.round(date / 1000) < Math.round(date1 / 1000)) {
+      Modal.error({
+        content: "Vesting Not End！！！"
+      })
+      return
+    }
     try {
       const rel = await this.vesting2ContractInstance?.methods.senderWithdrawFromStream2(stream2ID).send({ from: this.user });
       Modal.success({
@@ -633,7 +699,7 @@ export default class CommonStore {
     try {
       const rel = await this.vesting1ContractInstance?.methods.getStream(streamID).call({ from: this.user });
       this.stream1Sender = rel.sender;
-      this.stream1Deposit = rel.deposit;
+      this.stream1Deposit = StringUtil.unShiftedBy_(rel.deposit, 18);
       this.stream1TokenAddress = rel.tokenAddress;
       // this.stream1StartTime = rel.startTime;
       // // Hours part from the timestamp
@@ -646,10 +712,10 @@ export default class CommonStore {
       // var formattedTime = hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
       const startdate = new Date(rel.startTime * 1000);
       const stopdate = new Date(rel.stopTime * 1000);
-      this.stream1StartTime = startdate.toLocaleDateString("en-US") + startdate.toLocaleTimeString("en-US");
-      this.stream1StopTime = stopdate.toLocaleDateString("en-US") + stopdate.toLocaleTimeString("en-US");
-      this.stream1RemainingBalance = rel.remainingBalance;
-      this.stream1RatePerSecond = rel.ratePerSecond;
+      this.stream1StartTime = startdate.toLocaleDateString("en-US") + ' ' + startdate.toLocaleTimeString("en-US");
+      this.stream1StopTime = stopdate.toLocaleDateString("en-US") + ' ' + stopdate.toLocaleTimeString("en-US");
+      this.stream1RemainingBalance = StringUtil.unShiftedBy_(rel.remainingBalance, 18);
+      this.stream1RatePerSecond = StringUtil.unShiftedBy_(rel.ratePerSecond, 18);
       this.stream1Erc721Address = rel.erc721Address;
       this.stream1NftTotalSupply = rel.nftTotalSupply;
       // Modal.success({
@@ -672,16 +738,16 @@ export default class CommonStore {
     try {
       const rel = await this.vesting2ContractInstance?.methods.getStream2(streamID).call({ from: this.user });
       this.stream2Sender = rel.sender;
-      this.stream2Deposit = rel.deposit;
+      this.stream2Deposit = StringUtil.unShiftedBy_(rel.deposit, 18);
       this.stream2TokenAddress = rel.tokenAddress;
       const startdate = new Date(rel.startTime * 1000);
       const stopdate = new Date(rel.stopTime * 1000);
-      this.stream2StartTime = startdate.toLocaleDateString("en-US") + startdate.toLocaleTimeString("en-US");
-      this.stream2StopTime = stopdate.toLocaleDateString("en-US") + stopdate.toLocaleTimeString("en-US");
+      this.stream2StartTime = startdate.toLocaleDateString("en-US") + ' ' + startdate.toLocaleTimeString("en-US");
+      this.stream2StopTime = stopdate.toLocaleDateString("en-US") + ' ' + stopdate.toLocaleTimeString("en-US");
       // this.stream2StartTime = rel.startTime;
       // this.stream2StopTime = rel.stopTime;
-      this.stream2RemainingBalance = rel.remainingBalance;
-      this.stream2RatePerSecond = rel.ratePerSecond;
+      this.stream2RemainingBalance = StringUtil.unShiftedBy_(rel.remainingBalance, 18);
+      this.stream2RatePerSecond = StringUtil.unShiftedBy_(rel.ratePerSecond, 18);
       this.stream2Erc721Address = rel.erc721Address;
       // Modal.success({
       //   content: "get Stream2Info succeed！！！"
@@ -812,9 +878,9 @@ export default class CommonStore {
       })
       return
     }
-    return await this.vesting1ContractInstance?.methods.balanceOf(streamID, this.user).call({
+    return StringUtil.unShiftedBy_(await this.vesting1ContractInstance?.methods.balanceOf(streamID, this.user).call({
       from: this.user,
-    })
+    }), 18);
   }
 
   async getSenderWithdrawrableStream1Balance(streamID: number) {
@@ -836,9 +902,9 @@ export default class CommonStore {
       })
       return
     }
-    return await this.vesting2ContractInstance?.methods.balanceOf2(stream2ID, this.user).call({
+    return StringUtil.unShiftedBy_(await this.vesting2ContractInstance?.methods.balanceOf2(stream2ID, this.user).call({
       from: this.user,
-    })
+    }), 18);
   }
 
   async getSenderWithdrawrableStream2Balance(stream2ID: number) {

@@ -758,7 +758,7 @@ export default class CommonStore {
   }
   async approveToVestingContract() {
     try {
-      await this.testERC20ContractInstance?.methods.approve(config.vesting1ContractAddressRINKEBY, '0xfffffffffffffffffffffffffffffffffffff').send({ from: this.user });
+      await this.testERC20ContractInstance?.methods.approve(config.vesting1ContractAddressRINKEBY, '0xfffffffffffffffffffffff').send({ from: this.user });
       this.approved = true;
       Modal.success({
         content: "approved！！！"
@@ -771,7 +771,7 @@ export default class CommonStore {
 
   async approveToVesting2Contract() {
     try {
-      await this.testERC20ContractInstance?.methods.approve(config.vesting2ContractAddressRINKEBY, '0xfffffffffffffffffffffffffffffffffffff').send({ from: this.user });
+      await this.testERC20ContractInstance?.methods.approve(config.vesting2ContractAddressRINKEBY, '0xfffffffffffffffffffffff').send({ from: this.user });
       this.approvedForVesting2 = true;
       Modal.success({
         content: "approved！！！"

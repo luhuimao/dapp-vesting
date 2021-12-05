@@ -11,7 +11,7 @@ import CommonStore from '../store/common_store';
 
 import Footer from '../component/footer';
 import Header from '../component/header';
-
+import moment from 'moment';
 const { Sider } = Layout;
 
 
@@ -354,6 +354,7 @@ export default class Home extends React.Component<{
       this.state.NFTTOTALSUPPLY
     );
   }
+
   async handleCreate2Click() {
     if (!this.state.DEPOSIT2 || this.state.DEPOSIT2.length <= 0 ||
       !this.state.TOKENADDRESS2 || this.state.TOKENADDRESS2.length <= 0 ||
@@ -418,12 +419,12 @@ export default class Home extends React.Component<{
               <div className="item">
                 <label>ERC721ADDRESS</label>
                 <input id="" name="" value={this.state.ERC721ADDRESS}
-                 onChange={this.updateErc721AddressInput.bind(this)} placeholder="ERC721 Address" type="text" />
+                  onChange={this.updateErc721AddressInput.bind(this)} placeholder="ERC721 Address" type="text" />
               </div>
               <div className="item">
                 <label>NFTTOTALSUPPLY</label>
                 <input id="" name="" value={this.state.NFTTOTALSUPPLY}
-                 onChange={this.updateNftTotalSupplyInput.bind(this)} placeholder="ERC721 TotalSupply" type="text" />
+                  onChange={this.updateNftTotalSupplyInput.bind(this)} placeholder="ERC721 TotalSupply" type="text" />
               </div>
             </div>
             <div style={{
@@ -511,63 +512,6 @@ export default class Home extends React.Component<{
               }}>Get StreamInfo</Button>
             </div>
           </div>
-          <div style={{
-            display: `flex`,
-            flexDirection: `column`,
-            marginTop: 100
-          }}>
-            {/* <ul><li>
-              <label>
-                sender: {
-                  this.props.commonStore!.stream1Sender
-                }
-              </label>
-            </li></ul>
-            <ul><li>
-              <label>
-                deposit: {this.props.commonStore!.stream1Deposit}
-              </label>
-            </li></ul>
-            <ul><li>
-              <label>
-                tokenAddress: {this.props.commonStore!.stream1TokenAddress}
-              </label>
-            </li></ul>
-            <ul><li>
-              <label>
-                startTime: {this.props.commonStore!.stream1StartTime}
-              </label>
-            </li></ul>
-            <ul><li>
-              <label>
-                stopTime: {this.props.commonStore!.stream1StopTime}
-              </label>
-            </li></ul>
-            <ul><li>
-              <label>
-                remainingBalance: {this.props.commonStore!.stream1RemainingBalance}
-              </label>
-            </li></ul>
-            <ul><li>
-              <label>
-                ratePerSecond: {this.props.commonStore!.stream1RatePerSecond}
-              </label>
-            </li></ul>
-            <ul><li>
-              <label>
-                erc721Address: {this.props.commonStore!.stream1Erc721Address}
-              </label>
-            </li></ul>
-            <ul><li>
-              <label>
-                nftTotalSupply: {this.props.commonStore!.stream1NftTotalSupply}
-              </label>
-            </li></ul> */}
-            {/* <ul><li>
-              StreamID: <input type="text" onChange={this.updateCheckBalanceStreamIDInput.bind(this)} name="name" />
-            </li></ul> */}
-
-          </div>
         </div>
       )
     } else if (this.props.homeStore!.selectedMenu === "balance") {
@@ -577,19 +521,7 @@ export default class Home extends React.Component<{
             <div className="top">
               <div className="item"><h1>Stream1 Balance</h1></div>
               <div className="item">
-                <label>Test Token Balance</label>
-                <input id="" disabled name="" value={this.props.commonStore!.userTestERC20Balance} type="text" />
-              </div>
-              <div className="item">
-                <label>TEST NFT Balance</label>
-                <input id="" name="" disabled value={this.props.commonStore!.userTestNFTBalance} type="text" />
-              </div>
-              <div className="item">
-                <label>TokenIDs</label>
-                <input id="phone-num" name="" value={this.props.commonStore!.userTestNFTTokenID} disabled type="text" />
-              </div>
-              <div className="item">
-                <label>Vesting Balance</label>
+                <label>Stream1 Balance</label>
                 <input id="" name="" value={this.state.withdrawableBalance} disabled type="text" />
               </div>
               <div className="item">
@@ -735,16 +667,6 @@ export default class Home extends React.Component<{
                 <input id="" name="" value={this.state.TOKENADDRESS2}
                   onChange={this.updateTokenAddress2Input} placeholder="ERC20 Token Address" type="text" />
               </div>
-              {/* <div className="item">
-                <label>STARTTIME</label>
-                <input id="phone-num" value={this.state.STARTTIME2} name=""
-                  onChange={this.updateStartTime2Input.bind(this)} placeholder="Vesting Start Timestamp" type="text" />
-              </div>
-              <div className="item">
-                <label>STOPTIME</label>
-                <input id="" name="" value={this.state.STOPTIME2}
-                  onChange={this.updateStopTime2Input.bind(this)} placeholder="Vesting End Timestamp" type="text" />
-              </div> */}
               <div className="item">
                 <label>STARTTIME</label>
                 <Space direction="vertical" size={12}>
@@ -790,72 +712,6 @@ export default class Home extends React.Component<{
                   await this.handleCreate2Click();
                 }}>Create</Button>
               </div>
-            </div>
-          </div>
-          <div style={{ display: 'none' }}>
-            <ul>
-              <li>
-                <span>
-                  DEPOSIT:
-                </span>
-                <input type="text" onChange={this.updateDepositInput.bind(this)} name="name" />
-              </li>
-            </ul>
-            <ul>
-              <li>
-                <label>
-                  TOKENADDRESS:
-                </label>
-                <input id="_tokenaddress" type="text" onChange={this.updateTokenAddressInput.bind(this)} name="name" />
-              </li>
-            </ul>
-            <ul>
-              <li>
-                <label>
-                  STARTTIME: <input type="text" onChange={this.updateStartTimeInput.bind(this)} name="name" />
-                </label>
-              </li>
-            </ul>
-            <ul>
-              <li>
-                <label>
-                  STOPTIME: <input type="text" onChange={this.updateStopTimeInput.bind(this)} name="name" />
-                </label>
-              </li>
-            </ul>
-            <ul>
-              <li>
-                <label>
-                  ERC721ADDRESS:
-                  <input type="text" onChange={this.updateErc721AddressInput.bind(this)} name="name" />
-                </label>
-              </li>
-            </ul>
-            <ul>
-              <li>
-                <label>
-                  SHARES:
-                  <input type="text" onChange={this.updateSharesInput.bind(this)} name="name" />
-                </label>
-              </li>
-            </ul>
-            <div style={{
-              float: `left`,
-              display: `flex`,
-              marginLeft: '20px'
-            }}>
-              <Button disabled={this.props.commonStore?.approvedForVesting2} onClick={async () => {
-                await this.props.commonStore?.approveToVesting2Contract();
-              }}>Approve</Button>
-            </div>
-            <div style={{
-              float: `right`,
-              display: `flex`,
-              marginRight: '20px'
-            }}>
-              <Button type={`primary`} onClick={async () => {
-                await this.handleCreate2Click();
-              }}>Create</Button>
             </div>
           </div>
         </div>
@@ -923,7 +779,7 @@ export default class Home extends React.Component<{
             <div className="top">
               <div className="item"><h1>Stream2 Balance</h1></div>
               <div className="item">
-                <label>Vesting Balance</label>
+                <label>Stream2 Balance</label>
                 <input id="" name="" value={this.state.withdrawableBalance2} disabled type="text" />
               </div>
               <div className="item">
@@ -1056,6 +912,33 @@ export default class Home extends React.Component<{
           </div>
         </div>
       )
+    } else if (this.props.homeStore!.selectedMenu === "testbalance") {
+      return (
+        <div className="menu-content">
+          <div className="wrap">
+            <div className="top">
+              <div className="item"><h1>Test Token Balance</h1></div>
+              <div className="item">
+                <label>Test Token Balance</label>
+                <input id="" disabled name="" value={this.props.commonStore!.userTestERC20Balance} type="text" />
+              </div>
+              <div className="item">
+                <label>TEST NFT Balance</label>
+                <input id="" name="" disabled value={this.props.commonStore!.userTestNFTBalance} type="text" />
+              </div>
+              <div className="item">
+                <label>TokenIDs</label>
+                <input id="phone-num" name="" value={this.props.commonStore!.userTestNFTTokenID} disabled type="text" />
+              </div>
+            </div>
+            <div className="button-wrap">
+              <Button type={`primary`} onClick={async () => {
+                await this.props.commonStore!.refreshTestTokenBalance();
+              }}>Refresh</Button>
+            </div>
+          </div>
+        </div>
+      )
     } else {
       return (
         <div className="menu-content">nothing</div>
@@ -1110,6 +993,7 @@ export default class Home extends React.Component<{
                   style={{
                     backgroundColor: "#333",
                     color: "white",
+                    width: "300px",
                   }}
                 >
                   <div className="logo" />
@@ -1147,6 +1031,9 @@ export default class Home extends React.Component<{
                     </Menu.Item>
                     <Menu.Item key="send" icon={<ToolOutlined />}>
                       Transfer TESTNFT
+                    </Menu.Item>
+                    <Menu.Item key="testbalance" icon={<ToolOutlined />}>
+                      Test Token Balance
                     </Menu.Item>
                   </Menu>
                 </Sider>

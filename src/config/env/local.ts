@@ -330,7 +330,7 @@ export default {
       "type": "function"
     }
   ],
-  vesting2ContractAddressRINKEBY: "0x1822F29C40FE09D5A78BAE1D0f4d5417FaA22BD1",
+  vesting2ContractAddressRINKEBY: "0xbAbAEc21b66fCC754C7B82CA5372aF9baE9eed6B",
   vesting2ContractABI: [
     {
       "inputs": [],
@@ -452,62 +452,6 @@ export default {
         }
       ],
       "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "deposit",
-          "type": "uint256"
-        },
-        {
-          "internalType": "address",
-          "name": "tokenAddress",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "startTime",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "stopTime",
-          "type": "uint256"
-        },
-        {
-          "internalType": "address",
-          "name": "erc721Address",
-          "type": "address"
-        },
-        {
-          "components": [
-            {
-              "internalType": "uint256",
-              "name": "tokenid",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "share",
-              "type": "uint256"
-            }
-          ],
-          "internalType": "struct VestingTypes.NFTShares[]",
-          "name": "nftShares",
-          "type": "tuple[]"
-        }
-      ],
-      "name": "createStream2",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "nonpayable",
       "type": "function"
     },
     {

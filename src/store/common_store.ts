@@ -202,7 +202,7 @@ export default class CommonStore {
         this.allowance = await Util.timeoutWrapperCall(async () => {
           return (await this.getAllowance(this.user));
         });
-        this.approved = this.allowance > 0 ? true : false;
+        this.approved = this.allowance >= (2 ^ 256 - 1) ? true : false;
       })(),
       (async () => {
         // 取vesting2allowance
@@ -211,46 +211,8 @@ export default class CommonStore {
           return (await this.getVesting2Allowance(this.user));
         });
         console.log("allowance:", this.allowanceOfVesting2.toString());
-        this.approvedForVesting2 = this.allowanceOfVesting2 > 0 ? true : false;
-      })(),
-      // (async () => {
-      //   // 查询会员是否可用
-      //   console.log("查询会员是否可用。。。")
-      //   this.isVipValid = await Util.timeoutWrapperCall(async () => {
-      //     return await this.coinToolsContractInstance!.methods.isVipValid(this.user).call({
-      //       from: this.user,
-      //     })
-      //   })
-      // })(),
-      // (async () => {
-      //   // 查询佣金比例
-      //   console.log("查询佣金比例。。。")
-      //   const rebateRate_ = await Util.timeoutWrapperCall(async () => {
-      //     return await this.coinToolsContractInstance!.methods.nomarlRebateRate().call({
-      //       from: this.user,
-      //     })
-      //   })
-      //   this.rebateRate = StringUtil.div_(rebateRate_.toString(), 100)
-
-      // })(),
-      // (async () => {
-      //   console.log("查询会员佣金比例。。。")
-      //   const vipRebateRate_ = await Util.timeoutWrapperCall(async () => {
-      //     return await this.coinToolsContractInstance!.methods.monthVipRebateRate().call({
-      //       from: this.user,
-      //     })
-      //   })
-      //   this.vipRebateRate = StringUtil.div_(vipRebateRate_.toString(), 100)
-      // })(),
-      // (async () => {
-      //   // 查询会员信息
-      //   console.log("请求会员信息。。。")
-      //   this.vipInfo = await Util.timeoutWrapperCall(async () => {
-      //     return await this.coinToolsContractInstance!.methods.vips(this.user).call({
-      //       from: this.user,
-      //     })
-      //   })
-      // })(),
+        this.approvedForVesting2 = this.allowanceOfVesting2 >= (2 ^ 256 - 1) ? true : false;
+      })()
     ])
   }
 
@@ -261,40 +223,6 @@ export default class CommonStore {
     }
     this.user = ""
     this.timerStatus = false
-  }
-
-  @withGlobalLoading()
-  async becomeVip() {
-    if (!this.user) {
-      Modal.error({
-        content: "请先连接钱包！！！"
-      })
-      return
-    }
-    if (this.isVipValid) {
-      Modal.info({
-        content: "您已经是尊贵会员。"
-      })
-      return
-    }
-    // const requiredFee = await Util.timeoutWrapperCall(async () => {
-    //   return await this.coinToolsContractInstance?.methods.getRequiredFee(0).call({
-    //     from: this.user,
-    //   })
-    // })
-    // console.log(`要求收取费用：${StringUtil.unShiftedBy_(requiredFee, 18)}`)
-    try {
-      // const result = await this.coinToolsContractInstance?.methods.toolEntry(0, this.ethWallet.zeroAddress(), `0x${this.ethWallet.encodeParamsHex(["address"], [this.user])}`).send({
-      //   from: this.user,
-      //   value: requiredFee,
-      // })  // 直到确认了才会返回
-      // console.log("result", result)
-      Modal.success({
-        content: "欢迎加入会员大家庭！！！"
-      })
-    } catch (err) {
-      console.log(err)
-    }
   }
 
   @withGlobalLoading()
@@ -436,22 +364,43 @@ export default class CommonStore {
       })
       return
     }
+
     if (streamStartTime < (await this.web3Instance!.eth.getBlock("latest")).timestamp) {
       Modal.error({
         content: "streamStartTime must greater than current block timestamp!"
       })
       return
     }
+
     if (streamStartTime > streamStopTime) {
       Modal.error({
         content: "streamStopTime must greater than streamStartTime!"
       })
       return
     }
-    const streamDuration = streamStopTime - streamStartTime;
+    const allowance = await this.getVesting2Allowance(this.user);
+    console.log("allowance:", allowance.toString());
     const depositAmountInWei = this.web3Instance!.utils.toWei(depositAmount.toString(), 'ether');
-    const streamDurationBN = this.web3Instance!.utils.toBN(streamDuration);
+
+    const erc20Balance = await this.testERC20ContractInstance!.methods.balanceOf(this.user).call({ from: this.user, });
+    console.log("erc20Balance:", erc20Balance.toString());
+    if (erc20Balance < depositAmountInWei) {
+      Modal.error({
+        content: "Token Balance Insufficient!"
+      })
+      return
+    }
     console.log("depositAmountInWei:", depositAmountInWei.toString());
+    // if (allowance < depositAmountInWei) {
+    //   // await this.approveToVesting2Contract();
+    //   Modal.error({
+    //     content: "Approve First!"
+    //   })
+    //   this.approvedForVesting2 = false;
+    //   return
+    // }
+    const streamDuration = streamStopTime - streamStartTime;
+    const streamDurationBN = this.web3Instance!.utils.toBN(streamDuration);
     console.log("streamDurationBN:", streamDurationBN.toString());
     // if (depositAmountInWei < streamDurationBN) {
     //   Modal.error({
@@ -726,6 +675,43 @@ export default class CommonStore {
     }
   }
 
+  async refreshTestTokenBalance() {
+    if (!this.user) {
+      Modal.error({
+        content: "请先连接钱包！！！"
+      })
+      return
+    }
+    try {
+      (async () => {
+        // 取余额
+        console.log("取Test Token余额。。。")
+        this.userTestERC20Balance = StringUtil.unShiftedBy_(await Util.timeoutWrapperCall(async () => {
+          return await this.testERC20ContractInstance!.methods.balanceOf(this.user).call({ from: this.user, })
+        }), 18)
+      })();
+      (async () => {
+        // 取余额
+        console.log("取NFT余额。。。")
+        this.userTestNFTBalance = await Util.timeoutWrapperCall(async () => {
+          return await this.testNFTContractInstance!.methods.balanceOf(this.user).call({ from: this.user, })
+        });
+      })();
+      (async () => {
+        // 取余额
+        console.log("取NFT TokenID。。。")
+        this.userTestNFTTokenID = await Util.timeoutWrapperCall(async () => {
+          return await this.getUserTokenIds();
+        });
+      })();
+      Modal.success({
+        content: "Refresh!"
+      })
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
   async getStream2Info(streamID: number) {
     // if (!this.user) {
     //   Modal.error({
@@ -758,7 +744,7 @@ export default class CommonStore {
   }
   async approveToVestingContract() {
     try {
-      await this.testERC20ContractInstance?.methods.approve(config.vesting1ContractAddressRINKEBY, '0xfffffffffffffffffffffff').send({ from: this.user });
+      await this.testERC20ContractInstance?.methods.approve(config.vesting1ContractAddressRINKEBY, '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff').send({ from: this.user });
       this.approved = true;
       Modal.success({
         content: "approved！！！"
@@ -771,7 +757,8 @@ export default class CommonStore {
 
   async approveToVesting2Contract() {
     try {
-      await this.testERC20ContractInstance?.methods.approve(config.vesting2ContractAddressRINKEBY, '0xfffffffffffffffffffffff').send({ from: this.user });
+      // const aproveInWei = this.web3Instance!.utils.toWei((approveAmount + 1).toString(), 'ether');
+      await this.testERC20ContractInstance?.methods.approve(config.vesting2ContractAddressRINKEBY, "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff").send({ from: this.user });
       this.approvedForVesting2 = true;
       Modal.success({
         content: "approved！！！"
@@ -781,7 +768,6 @@ export default class CommonStore {
     }
 
   }
-
 
   async getAllowance(owner: string) {
     return await this.testERC20ContractInstance?.methods.allowance(owner, config.vesting1ContractAddressRINKEBY).call({ from: this.user });
@@ -801,7 +787,6 @@ export default class CommonStore {
     return await this.testNFTContractInstance!.methods.balanceOf(this.user).call({ from: this.user, })
   }
 
-
   async getUserTokenIds() {
     const balance = await this.testNFTContractInstance!.methods.balanceOf(this.user).
       call({
@@ -815,7 +800,9 @@ export default class CommonStore {
           from: this.user,
         });
         console.log(`toenid: ${tokenid}`);
-        ids += tokenid + ",";
+        console.log("i:", i);
+        ids += "#" + tokenid;
+        if (i < parseInt(balance) - 1) ids += ", ";
       }
       ids += "]";
       console.log(ids);

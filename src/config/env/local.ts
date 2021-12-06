@@ -1,7 +1,7 @@
 
 export default {
   rpcUrl: "https://rinkeby.infura.io/v3/04dd3493f83c48de9735b4b29f108b84",
-  vesting1ContractAddressRINKEBY: "0xD7E3304d179B2910D1c00a8c609274BB222687d0",
+  vesting1ContractAddressRINKEBY: "0x41363390B92F724680197736D71c26Fb3462574e",
   vesting1ContractABI: [
     {
       "inputs": [],
@@ -182,11 +182,6 @@ export default {
           "internalType": "address",
           "name": "erc721Address",
           "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "nftTotalSupply",
-          "type": "uint256"
         }
       ],
       "name": "createStream",
@@ -213,6 +208,30 @@ export default {
         {
           "internalType": "uint256",
           "name": "delta",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "streamId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getSingleNFTBalance",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "balance",
           "type": "uint256"
         }
       ],
@@ -330,7 +349,7 @@ export default {
       "type": "function"
     }
   ],
-  vesting2ContractAddressRINKEBY: "0xbAbAEc21b66fCC754C7B82CA5372aF9baE9eed6B",
+  vesting2ContractAddressRINKEBY: "0xd1c66b6d958bc0cAd417B93135Eb4FBA1043af9F",
   vesting2ContractABI: [
     {
       "inputs": [],

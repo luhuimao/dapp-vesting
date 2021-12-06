@@ -339,10 +339,10 @@ export default class Home extends React.Component<{
       !this.state.TOKENADDRESS || this.state.TOKENADDRESS.length <= 0 ||
       !this.state.STARTTIME || this.state.STARTTIME.length <= 0 ||
       !this.state.STOPTIME || this.state.STOPTIME.length <= 0 ||
-      !this.state.ERC721ADDRESS || this.state.ERC721ADDRESS.length <= 0 ||
-      !this.state.NFTTOTALSUPPLY || this.state.NFTTOTALSUPPLY.length <= 0
+      !this.state.ERC721ADDRESS || this.state.ERC721ADDRESS.length <= 0
+      // !this.state.NFTTOTALSUPPLY || this.state.NFTTOTALSUPPLY.length <= 0
     ) {
-      alert("DEPOSIT, TOKENADDRESS, STARTTIME, STOPTIME, ERC721ADDRESS, NFTTOTALSUPPLY Can't Be Null");
+      alert("DEPOSIT, TOKENADDRESS, STARTTIME, STOPTIME, ERC721ADDRESS Can't Be Null");
       return;
     }
     await this.props.commonStore!.createStream(
@@ -350,9 +350,7 @@ export default class Home extends React.Component<{
       this.state.TOKENADDRESS,
       this.state.STARTTIME,
       this.state.STOPTIME,
-      this.state.ERC721ADDRESS,
-      this.state.NFTTOTALSUPPLY
-    );
+      this.state.ERC721ADDRESS);
   }
 
   async handleCreate2Click() {
@@ -392,14 +390,6 @@ export default class Home extends React.Component<{
                 <input id="" name="" value={this.state.TOKENADDRESS}
                   onChange={this.updateTokenAddressInput.bind(this)} placeholder="ERC20 Token Address" type="text" />
               </div>
-              {/* <div className="item">
-                <label>STARTTIME-TIMESTAMP</label>
-                <input id="phone-num" name="" disabled value={this.state.STARTTIME} onChange={this.updateStartTimeInput.bind(this)} placeholder="Vesting Start Timestamp" type="text" />
-              </div> */}
-              {/* <div className="item">
-                <label>STOPTIME-TIMESTAMP</label>
-                <input id="" name="" disabled value={this.state.STOPTIME} onChange={this.updateStopTimeInput.bind(this)} placeholder="Vesting End Timestamp" type="text" />
-              </div> */}
               <div className="item">
                 <label>STARTTIME</label>
                 <Space direction="vertical" size={12}>
@@ -421,11 +411,11 @@ export default class Home extends React.Component<{
                 <input id="" name="" value={this.state.ERC721ADDRESS}
                   onChange={this.updateErc721AddressInput.bind(this)} placeholder="ERC721 Address" type="text" />
               </div>
-              <div className="item">
+              {/* <div className="item">
                 <label>NFTTOTALSUPPLY</label>
                 <input id="" name="" value={this.state.NFTTOTALSUPPLY}
                   onChange={this.updateNftTotalSupplyInput.bind(this)} placeholder="ERC721 TotalSupply" type="text" />
-              </div>
+              </div> */}
             </div>
             <div style={{
               paddingTop: '20px',
@@ -437,7 +427,11 @@ export default class Home extends React.Component<{
                 marginLeft: '20px'
               }}>
                 <Button disabled={this.props.commonStore?.approved} onClick={async () => {
-                  await this.props.commonStore?.approveToVestingContract();
+                  if (!this.state.TOKENADDRESS || this.state.TOKENADDRESS.length <= 0) {
+                    alert("Token Address Can't Be Null");
+                    return;
+                  }
+                  await this.props.commonStore?.approveToVestingContract(this.state.TOKENADDRESS);
                 }}>Approve</Button>
               </div>
               <div style={{
@@ -496,7 +490,7 @@ export default class Home extends React.Component<{
                 <input id="" name="" value={this.props.commonStore!.stream1NftTotalSupply} disabled type="text" />
               </div>
               <div className="item">
-                <label>StreamID</label>
+                <label>Stream1ID</label>
                 <input type="text" value={this.state.CheckBalanceStreamID}
                   onChange={this.updateCheckBalanceStreamIDInput.bind(this)} name="name" />
                 {/* <input id="" name="" value={this.props.commonStore!.stream1NftTotalSupply} disabled type="text" /> */}
@@ -525,7 +519,7 @@ export default class Home extends React.Component<{
                 <input id="" name="" value={this.state.withdrawableBalance} disabled type="text" />
               </div>
               <div className="item">
-                <label>StreamID</label>
+                <label>Stream1ID</label>
                 <input type="text" value={this.state.CheckBalanceStreamID}
                   onChange={this.updateCheckBalanceStreamIDInput.bind(this)} name="name" />
               </div>
@@ -624,7 +618,7 @@ export default class Home extends React.Component<{
               <div className="top">
                 <div className="item"><h1>Sender WithDraw From Stream1</h1></div>
                 <div className="item">
-                  <label>StreamID</label>
+                  <label>Stream1ID</label>
                   <input id="" name="" value={this.state.StreamID}
                     onChange={this.updateStreamIdInput.bind(this)} placeholder="StreamID To WithDraw" type="text" />
                 </div>
@@ -656,7 +650,6 @@ export default class Home extends React.Component<{
           <div className="wrap">
             <div className="top">
               <div className="item"><h1>Create Stream2</h1></div>
-
               <div className="item">
                 <label>DEPOSIT</label>
                 <input id="" name="" value={this.state.DEPOSIT2}
@@ -700,7 +693,11 @@ export default class Home extends React.Component<{
                 marginLeft: '20px'
               }}>
                 <Button disabled={this.props.commonStore?.approvedForVesting2} onClick={async () => {
-                  await this.props.commonStore?.approveToVesting2Contract();
+                  if (!this.state.TOKENADDRESS2 || this.state.TOKENADDRESS2.length <= 0) {
+                    alert("Token Address Can't Be Null");
+                    return;
+                  }
+                  await this.props.commonStore?.approveToVesting2Contract(this.state.TOKENADDRESS2);
                 }}>Approve</Button>
               </div>
               <div style={{
@@ -756,7 +753,7 @@ export default class Home extends React.Component<{
                 <input id="" name="" value={this.props.commonStore!.stream2Erc721Address} disabled type="text" />
               </div>
               <div className="item">
-                <label>StreamID</label>
+                <label>Stream2ID</label>
                 <input type="text" value={this.state.CheckBalanceStream2ID} onChange={this.updateCheckBalanceStream2IDInput} name="name" />
               </div>
             </div>

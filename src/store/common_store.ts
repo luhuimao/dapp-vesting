@@ -202,7 +202,7 @@ export default class CommonStore {
         this.allowance = await Util.timeoutWrapperCall(async () => {
           return (await this.getAllowance(this.user));
         });
-        this.approved = this.allowance >= (2 ^ 256 - 1) ? true : false;
+        // this.approved = this.allowance >= (2 ^ 256 - 1) ? true : false;
       })(),
       (async () => {
         // 取vesting2allowance
@@ -211,7 +211,7 @@ export default class CommonStore {
           return (await this.getVesting2Allowance(this.user));
         });
         console.log("allowance:", this.allowanceOfVesting2.toString());
-        this.approvedForVesting2 = this.allowanceOfVesting2 >= (2 ^ 256 - 1) ? true : false;
+        // this.approvedForVesting2 = this.allowanceOfVesting2 >= (2 ^ 256 - 1) ? true : false;
       })()
     ])
   }
@@ -248,7 +248,7 @@ export default class CommonStore {
     streamStartTime: any,
     streamStopTime: any,
     erc721Addr: string,
-    nftTotalSupply: any) {
+  ) {
     if (!this.user) {
       Modal.error({
         content: "请先连接钱包！！！"
@@ -273,19 +273,46 @@ export default class CommonStore {
       })
       return
     }
+
+    this.testERC20ContractInstance = new this.web3Instance!.eth.Contract(
+      config.testERC20ContractABI,
+      tokenAddr);
+
+    this.allowance = await this.getAllowance(this.user);
+    console.log("allowance:", this.allowance);
+    const depositAmountInWei = this.web3Instance!.utils.toWei(depositAmount.toString(), 'ether');
+    const erc20Balance = await this.testERC20ContractInstance!.methods.balanceOf(this.user).call({ from: this.user, });
+    console.log("erc20Balance:", erc20Balance.toString());
+    console.log("depositAmountInWei:", depositAmountInWei.toString());
+
+    if (parseInt(erc20Balance.toString()) < parseInt(depositAmountInWei.toString())) {
+      Modal.error({
+        content: "Token Balance Insufficient!"
+      })
+      return
+    }
+    if (this.allowance > Number(depositAmountInWei.toString())) {
+      this.approved = true;
+    } else {
+      Modal.error({
+        content: "Approve First!"
+      })
+      this.approved = false;
+      return
+    }
+
     const streamDuration = streamStopTime - streamStartTime;
     const streamDurationBN = this.web3Instance!.utils.toBN(streamDuration);
-    const nftTotalSupplyBN = this.web3Instance!.utils.toBN(nftTotalSupply);
-    const depositAmountInWei = this.web3Instance!.utils.toWei(depositAmount.toString(), 'ether');
+    console.log("streamDurationBN: ", streamDurationBN.toString());
+    // const nftTotalSupplyBN = this.web3Instance!.utils.toBN(nftTotalSupply);
     // const depositAmountInWei = depositAmount * 10 ** 18;
 
-    if (depositAmountInWei < streamDurationBN) {
+    if (parseInt(depositAmountInWei.toString()) < streamDuration) {
       Modal.error({
         content: "depositAmount smaller than time streamDuration!"
       })
       return
     }
-    console.log("depositAmountInWei:", depositAmountInWei);
     // console.log(depositAmountInWei.mod(streamDurationBN.mul(nftTotalSupplyBN)));
     // if (depositAmountInWei.mod(streamDurationBN.mul(nftTotalSupplyBN)).eq(this.web3Instance!.utils.toBN(0))) {
     //   Modal.error({
@@ -312,8 +339,7 @@ export default class CommonStore {
         tokenAddr,
         streamStartTime,
         streamStopTime,
-        erc721Addr,
-        nftTotalSupply
+        erc721Addr
       ).send({
         from: this.user,
       })  // 直到确认了才会返回
@@ -378,27 +404,35 @@ export default class CommonStore {
       })
       return
     }
+
+    this.testERC20ContractInstance = new this.web3Instance!.eth.Contract(
+      config.testERC20ContractABI,
+      tokenAddr);
+
     const allowance = await this.getVesting2Allowance(this.user);
     console.log("allowance:", allowance.toString());
     const depositAmountInWei = this.web3Instance!.utils.toWei(depositAmount.toString(), 'ether');
-
     const erc20Balance = await this.testERC20ContractInstance!.methods.balanceOf(this.user).call({ from: this.user, });
     console.log("erc20Balance:", erc20Balance.toString());
-    if (erc20Balance < depositAmountInWei) {
+    console.log("depositAmountInWei:", depositAmountInWei.toString());
+
+    if (parseInt(erc20Balance.toString()) < parseInt(depositAmountInWei.toString())) {
       Modal.error({
         content: "Token Balance Insufficient!"
       })
       return
     }
-    console.log("depositAmountInWei:", depositAmountInWei.toString());
-    // if (allowance < depositAmountInWei) {
-    //   // await this.approveToVesting2Contract();
-    //   Modal.error({
-    //     content: "Approve First!"
-    //   })
-    //   this.approvedForVesting2 = false;
-    //   return
-    // }
+
+    if (allowance < parseInt(depositAmountInWei.toString())) {
+      // await this.approveToVesting2Contract();
+      Modal.error({
+        content: "Approve First!"
+      })
+      this.approvedForVesting2 = false;
+      return
+    } else {
+      this.approvedForVesting2 = true;
+    }
     const streamDuration = streamStopTime - streamStartTime;
     const streamDurationBN = this.web3Instance!.utils.toBN(streamDuration);
     console.log("streamDurationBN:", streamDurationBN.toString());
@@ -479,6 +513,7 @@ export default class CommonStore {
       console.log(err)
     }
   }
+
   async withdraw(streamID: number) {
     if (!this.user) {
       Modal.error({
@@ -742,27 +777,53 @@ export default class CommonStore {
       console.log(err)
     }
   }
-  async approveToVestingContract() {
+
+  async approveToVestingContract(tokenAddr: string) {
     try {
-      await this.testERC20ContractInstance?.methods.approve(config.vesting1ContractAddressRINKEBY, '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff').send({ from: this.user });
-      this.approved = true;
-      Modal.success({
-        content: "approved！！！"
-      })
+      this.testERC20ContractInstance = new this.web3Instance!.eth.Contract(
+        config.testERC20ContractABI,
+        tokenAddr);
+
+      this.allowance = await Util.timeoutWrapperCall(async () => {
+        return (await this.getAllowance(this.user));
+      });
+      console.log("allowance: ", this.allowance);
+      if (this.allowance >= (2 ^ 256 - 1)) {
+        this.approved = true;
+      } else {
+        await this.testERC20ContractInstance?.methods.approve(config.vesting1ContractAddressRINKEBY, '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff').send({ from: this.user });
+        this.approved = true;
+        Modal.success({
+          content: "approved！！！"
+        })
+      }
     } catch (err) {
       console.log(err)
     }
 
   }
 
-  async approveToVesting2Contract() {
+  async approveToVesting2Contract(tokenAddr: string) {
     try {
-      // const aproveInWei = this.web3Instance!.utils.toWei((approveAmount + 1).toString(), 'ether');
-      await this.testERC20ContractInstance?.methods.approve(config.vesting2ContractAddressRINKEBY, "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff").send({ from: this.user });
-      this.approvedForVesting2 = true;
-      Modal.success({
-        content: "approved！！！"
-      })
+      this.testERC20ContractInstance = new this.web3Instance!.eth.Contract(
+        config.testERC20ContractABI,
+        tokenAddr);
+
+      this.allowanceOfVesting2 = await Util.timeoutWrapperCall(async () => {
+        return (await this.getVesting2Allowance(this.user));
+      });
+      console.log("allowance:", this.allowanceOfVesting2.toString());
+      if (this.allowanceOfVesting2 >= (2 ^ 256 - 1)) {
+        this.approvedForVesting2 = true;
+      } else {
+        await this.testERC20ContractInstance?.methods.approve(config.vesting2ContractAddressRINKEBY, "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff").send({ from: this.user });
+        this.approvedForVesting2 = true;
+        Modal.success({
+          content: "approved！！！"
+        })
+      }
+
+
     } catch (err) {
       console.log(err)
     }

@@ -916,7 +916,7 @@ export default class Home extends React.Component<{
             <div className="top">
               <div className="item"><h1>Test Token Balance</h1></div>
               <div className="item">
-                <label>Test Token Balance</label>
+                <label> {this.props.commonStore!.testTokenSymbol} Balance</label>
                 <input id="" disabled name="" value={this.props.commonStore!.userTestERC20Balance} type="text" />
               </div>
               <div className="item">

@@ -64,6 +64,7 @@ export default class CommonStore {
   private testNFTContractInstance?: Contract
   private testERC20ContractInstance?: Contract
 
+  @observable public testTokenSymbol: string = ""
   // 用作没连接到钱包之前的访问
   private publicProvider = new Web3.providers.HttpProvider(config.rpcUrl)
   private web3PublicInstance: Web3 = new Web3(this.publicProvider)
@@ -138,6 +139,7 @@ export default class CommonStore {
     this.testERC20ContractInstance = new this.web3Instance!.eth.Contract(
       config.testERC20ContractABI,
       config.testERC20ContractAddressRINKEBY);
+    this.testTokenSymbol = await this.testERC20ContractInstance!.methods.symbol().call({ from: this.user, });
     await this.afterConnectWalletSuccess()
   }
 
@@ -408,6 +410,7 @@ export default class CommonStore {
     this.testERC20ContractInstance = new this.web3Instance!.eth.Contract(
       config.testERC20ContractABI,
       tokenAddr);
+    this.testTokenSymbol = await this.testERC20ContractInstance!.methods.symbol().call({ from: this.user, });
 
     const allowance = await this.getVesting2Allowance(this.user);
     console.log("allowance:", allowance.toString());
@@ -540,6 +543,11 @@ export default class CommonStore {
       })
       return
     }
+
+    this.testERC20ContractInstance = new this.web3Instance!.eth.Contract(
+      config.testERC20ContractABI,
+      this.stream1TokenAddress);
+    this.testTokenSymbol = await this.testERC20ContractInstance!.methods.symbol().call({ from: this.user, });
     // if (amount >= balance) {
     //   Modal.error({
     //     content: "amount exceeds the available balance！！！"
@@ -672,13 +680,13 @@ export default class CommonStore {
   }
 
   async getStream1Info(streamID: number) {
-    if (!this.user) {
-      Modal.error({
-        content: "请先连接钱包！！！"
-      })
-      return
-    }
-    const balance = await this.getWithdrawrableStreamBalance(streamID);
+    // if (!this.user) {
+    //   Modal.error({
+    //     content: "请先连接钱包！！！"
+    //   })
+    //   return
+    // }
+    // const balance = await this.getWithdrawrableStreamBalance(streamID);
 
     try {
       const rel = await this.vesting1ContractInstance?.methods.getStream(streamID).call({ from: this.user });
@@ -702,6 +710,12 @@ export default class CommonStore {
       this.stream1RatePerSecond = StringUtil.unShiftedBy_(rel.ratePerSecond, 18);
       this.stream1Erc721Address = rel.erc721Address;
       this.stream1NftTotalSupply = rel.nftTotalSupply;
+
+
+      this.testERC20ContractInstance = new this.web3Instance!.eth.Contract(
+        config.testERC20ContractABI,
+        this.stream1TokenAddress);
+      this.testTokenSymbol = await this.testERC20ContractInstance!.methods.symbol().call({ from: this.user, });
       // Modal.success({
       //   content: "get Stream1Info succeed！！！"
       // })
@@ -754,7 +768,6 @@ export default class CommonStore {
     //   })
     //   return
     // }
-    const balance = await this.getWithdrawrableStream2Balance(streamID);
 
     try {
       const rel = await this.vesting2ContractInstance?.methods.getStream2(streamID).call({ from: this.user });
@@ -773,6 +786,11 @@ export default class CommonStore {
       // Modal.success({
       //   content: "get Stream2Info succeed！！！"
       // })
+
+      this.testERC20ContractInstance = new this.web3Instance!.eth.Contract(
+        config.testERC20ContractABI,
+        this.stream2TokenAddress);
+      this.testTokenSymbol = await this.testERC20ContractInstance!.methods.symbol().call({ from: this.user, });
     } catch (err) {
       console.log(err)
     }
@@ -783,6 +801,7 @@ export default class CommonStore {
       this.testERC20ContractInstance = new this.web3Instance!.eth.Contract(
         config.testERC20ContractABI,
         tokenAddr);
+      this.testTokenSymbol = await this.testERC20ContractInstance!.methods.symbol().call({ from: this.user, });
 
       this.allowance = await Util.timeoutWrapperCall(async () => {
         return (await this.getAllowance(this.user));
@@ -808,6 +827,7 @@ export default class CommonStore {
       this.testERC20ContractInstance = new this.web3Instance!.eth.Contract(
         config.testERC20ContractABI,
         tokenAddr);
+      this.testTokenSymbol = await this.testERC20ContractInstance!.methods.symbol().call({ from: this.user, });
 
       this.allowanceOfVesting2 = await Util.timeoutWrapperCall(async () => {
         return (await this.getVesting2Allowance(this.user));
@@ -926,6 +946,13 @@ export default class CommonStore {
       })
       return
     }
+
+    await this.getStream1Info(streamID);
+    this.testERC20ContractInstance = new this.web3Instance!.eth.Contract(
+      config.testERC20ContractABI,
+      this.stream1TokenAddress);
+    this.testTokenSymbol = await this.testERC20ContractInstance!.methods.symbol().call({ from: this.user, });
+
     return StringUtil.unShiftedBy_(await this.vesting1ContractInstance?.methods.balanceOf(streamID, this.user).call({
       from: this.user,
     }), 18);
@@ -950,6 +977,12 @@ export default class CommonStore {
       })
       return
     }
+    await this.getStream2Info(stream2ID);
+    this.testERC20ContractInstance = new this.web3Instance!.eth.Contract(
+      config.testERC20ContractABI,
+      this.stream2TokenAddress);
+    this.testTokenSymbol = await this.testERC20ContractInstance!.methods.symbol().call({ from: this.user, });
+
     return StringUtil.unShiftedBy_(await this.vesting2ContractInstance?.methods.balanceOf2(stream2ID, this.user).call({
       from: this.user,
     }), 18);

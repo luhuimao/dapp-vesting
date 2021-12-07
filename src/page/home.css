@@ -72,6 +72,8 @@ label{
 }
 .top input{
   width:350px;
+  border-radius: 5px;
+  border-width: 1px;
 }
 .ant-picker{
   width:350px;
@@ -82,4 +84,8 @@ label{
 }
 .buttom{
   padding-top: 20px;
+}
+
+.ant-btn{
+  border-radius: 15px;
 }

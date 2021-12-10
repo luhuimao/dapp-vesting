@@ -2,7 +2,7 @@ import React from 'react';
 import { inject, observer } from 'mobx-react';
 import './home.css'
 import {
-  Image, Layout, Menu, Button, DatePicker, Space
+  Image, Layout, Menu, Button, DatePicker, Space, Select
 } from 'antd';
 import 'antd/dist/antd.css';
 import { ToolOutlined } from '@ant-design/icons';
@@ -13,6 +13,7 @@ import Footer from '../component/footer';
 import Header from '../component/header';
 import moment from 'moment';
 const { Sider } = Layout;
+const { Option } = Select;
 
 
 @inject('homeStore', 'commonStore')
@@ -49,7 +50,8 @@ export default class Home extends React.Component<{
       CheckBalanceStream2ID: '',
       withdrawableBalance: '',
       withdrawableBalance2: '',
-      SHARES: ''
+      SHARES: '',
+      SELETEDTOKENID: ''
     }
     //vesting1 input event
     this.updateDepositInput = this.updateDepositInput.bind(this);
@@ -317,14 +319,15 @@ export default class Home extends React.Component<{
   }
   async getBalance() {
     const balance = await this.props.commonStore!.getWithdrawrableStreamBalance(this.state.CheckBalanceStreamID);
+    console.log("stream1 balance:", balance);
     this.setState({
-      withdrawableBalance: balance
+      withdrawableBalance: balance![0]
     });
   }
   async getBalance2() {
     const balance = await this.props.commonStore!.getWithdrawrableStream2Balance(this.state.CheckBalanceStream2ID);
     this.setState({
-      withdrawableBalance2: balance
+      withdrawableBalance2: balance![0]
     });
   }
   async getVesting2Balance() {
@@ -373,6 +376,15 @@ export default class Home extends React.Component<{
       this.state.SHARES
     );
   }
+
+  handleChange(value) {
+    console.log(`selected ${value}`);
+    // Update the state object
+    this.setState({
+      SELETEDTOKENID: value
+    });
+  }
+
   selectMenuContent() {
     if (this.props.homeStore!.selectedMenu === "create") {
       return (
@@ -509,19 +521,91 @@ export default class Home extends React.Component<{
         </div>
       )
     } else if (this.props.homeStore!.selectedMenu === "balance") {
+      let _nftWithdrawableBalance: any = null;
+      let _nftRemainingBalances: any = null;
+      let _tokenidsDropdown: any = null;
+
+      if (this.props.commonStore!.nftWithdrawableBalances.length > 0) {
+        _nftWithdrawableBalance = (
+          <>
+            {
+              this.props.commonStore!.nftWithdrawableBalances.map((data) => {
+                return (
+                  <div className="item">
+                    <label>Token #{data.tokenid} Withdrawable Balance</label>
+                    <input id={data.tokenid} name="" value={data.singleNftBalance} disabled type="text" />
+                  </div>
+                )
+              })
+            }
+          </>
+        );
+      }
+
+      if (this.props.commonStore!.nftRemainingBalances.length > 0) {
+        _nftRemainingBalances = (
+          <>
+            {
+              this.props.commonStore!.nftRemainingBalances.map((data) => {
+                return (
+                  <div className="item">
+                    <label>Token #{data.tokenid} Remaining Balance</label>
+                    <input id={data.tokenid} name="" value={data.nftRemainingBalance} disabled type="text" />
+                  </div>
+                )
+              })
+            }
+          </>
+        );
+      }
+
+      if (this.props.commonStore!.nftRemainingBalances.length > 0) {
+        _tokenidsDropdown = (
+          <>
+            {
+              this.props.commonStore!.nftRemainingBalances.map((data) => {
+                return (
+                  <Option value={data.tokenid}>#{data.tokenid}</Option>
+                )
+              })
+            }
+          </>
+        )
+      }
       return (
         <div className="menu-content">
           <div className="wrap">
             <div className="top">
               <div className="item"><h1>Stream1 Balance</h1></div>
               <div className="item">
-                <label>Stream1 Balance</label>
+                <label>Stream1 Available Balance</label>
                 <input id="" name="" value={this.state.withdrawableBalance} disabled type="text" />
               </div>
+              {_nftWithdrawableBalance}
+              {_nftRemainingBalances}
               <div className="item">
                 <label>Stream1ID</label>
                 <input type="text" value={this.state.CheckBalanceStreamID}
                   onChange={this.updateCheckBalanceStreamIDInput.bind(this)} name="name" />
+              </div>
+            </div>
+            <div className="top">
+              <div className="item">
+                <label>TokenId</label>
+                <Select defaultValue="" style={{ width: 300 }} onChange={this.handleChange.bind(this)}>
+                  {_tokenidsDropdown}
+                </Select>
+                <Button type={`primary`} onClick={async () => {
+                  if (!this.state.CheckBalanceStreamID || this.state.CheckBalanceStreamID.length <= 0 ||
+                    !this.state.SELETEDTOKENID || this.state.SELETEDTOKENID.length <= 0) {
+                    alert("StreamID Or TokenId Can't Be Null");
+                    return;
+                  }
+                  await this.props.commonStore!.withdrawByTokenId(this.state.CheckBalanceStreamID, this.state.SELETEDTOKENID);
+                  this.setState({
+                    SELETEDTOKENID: ""
+                  })
+                }}>Withdraw TokenId</Button>
               </div>
             </div>
             <div style={{
@@ -559,52 +643,12 @@ export default class Home extends React.Component<{
                     return;
                   }
                   this.props.commonStore!.withdraw(this.state.CheckBalanceStreamID);
-                }}>Withdraw</Button>
+                }}>Withdraw All</Button>
               </div>
             </div>
-            {/* <div className="button-wrap">
-              <Button type={`primary`} onClick={async () => {
-                if (!this.state.CheckBalanceStreamID || this.state.CheckBalanceStreamID.length <= 0) {
-                  alert("StreamID Can't Be Null");
-                  return;
-                }
-                await this.getBalance();
-              }}>Check Balance</Button>
-            </div> */}
+
           </div>
-          {/* <div style={{
-            display: `flex`,
-            flexDirection: `column`,
-            marginTop: 100,
-          }}>
-            <ul><li>
-              <span>
-                Test Token Balance: {
-                  this.props.commonStore!.userTestERC20Balance
-                }
-              </span>
-            </li></ul>
-            <ul><li>
-              <span>
-                TEST NFT Balance: {this.props.commonStore!.userTestNFTBalance}
-              </span>
-            </li></ul>
-            <ul><li>
-              <span>
-                TokenIDs: {this.props.commonStore!.userTestNFTTokenID}
-              </span>
-            </li></ul>
-            <ul><li>  <span>
-              Vesting Withdrawrable Balance: {this.state.withdrawableBalance}
-            </span></li></ul>
-            <ul><li>
-              StreamID: <input type="text" onChange={this.updateCheckBalanceStreamIDInput.bind(this)} name="name" />
-            </li></ul>
-            <Button type={`primary`} onClick={async () => {
-              await this.getBalance();
-            }}>Check Balance</Button>
-          </div> */}
-        </div>
+        </div >
       )
     } else if (this.props.homeStore!.selectedMenu === "senderWithdraw") {
       return (
@@ -770,6 +814,43 @@ export default class Home extends React.Component<{
         </div>
       )
     } else if (this.props.homeStore!.selectedMenu === "stream2Balance") {
+      let _nftWithdrawableBalance: any = null;
+      let _nftRemainingBalances: any = null;
+
+      if (this.props.commonStore!.nftWithdrawableBalances2.length > 0) {
+        _nftWithdrawableBalance = (
+          <>
+            {
+              this.props.commonStore!.nftWithdrawableBalances2.map((data) => {
+                return (
+                  <div className="item">
+                    <label>Token #{data.tokenid} Withdrawable Balance</label>
+                    <input id={data.tokenid} name="" value={data.singleNftBalance} disabled type="text" />
+                  </div>
+                )
+              })
+            }
+          </>
+        );
+      }
+
+      if (this.props.commonStore!.nftRemainingBalances2.length > 0) {
+        _nftRemainingBalances = (
+          <>
+            {
+              this.props.commonStore!.nftRemainingBalances2.map((data) => {
+                return (
+                  <div className="item">
+                    <label>Token #{data.tokenid} Remaining Balance</label>
+                    <input id={data.tokenid} name="" value={data.nftRemainingBalance} disabled type="text" />
+                  </div>
+                )
+              })
+            }
+          </>
+        );
+      }
+
       return (
         <div className="menu-content">
           <div className="wrap">
@@ -779,6 +860,8 @@ export default class Home extends React.Component<{
                 <label>Stream2 Balance</label>
                 <input id="" name="" value={this.state.withdrawableBalance2} disabled type="text" />
               </div>
+              {_nftWithdrawableBalance}
+              {_nftRemainingBalances}
               <div className="item">
                 <label>Stream2ID</label>
                 <input type="text" value={this.state.CheckBalanceStream2ID}
@@ -820,7 +903,7 @@ export default class Home extends React.Component<{
                     return;
                   }
                   this.props.commonStore!.withdraw2(this.state.CheckBalanceStream2ID);
-                }}>Withdraw</Button>
+                }}>Withdraw All</Button>
               </div>
             </div>
           </div>

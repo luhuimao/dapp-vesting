@@ -46,6 +46,9 @@ export default class CommonStore {
   @observable public stream1Erc721Address: string = "0"
   @observable public stream1NftTotalSupply: string = "0"
 
+  @observable public nftWithdrawableBalances: any[] = []
+  @observable public nftRemainingBalances: any[] = []
+
   @observable public stream2Sender: string = "0"
   @observable public stream2Deposit: string = "0"
   @observable public stream2TokenAddress: string = "0"
@@ -54,6 +57,9 @@ export default class CommonStore {
   @observable public stream2RemainingBalance: string = "0"
   @observable public stream2RatePerSecond: string = "0"
   @observable public stream2Erc721Address: string = "0"
+
+  @observable public nftWithdrawableBalances2: any[] = []
+  @observable public nftRemainingBalances2: any[] = []
 
   private web3Provider?: any
   private web3Instance?: Web3
@@ -125,22 +131,24 @@ export default class CommonStore {
       await this.afterConnectWalletSuccess()
     });
     const accounts = await this.web3Provider.request({ method: 'eth_requestAccounts' });
-    this.user = accounts[0]
-    console.log("获取到用户:", this.user)
-    this.web3Instance = new Web3(this.web3Provider as any)
-    // this.coinToolsContractInstance = new this.web3Instance!.eth.Contract(config.coinToolContractAbi, config.coinToolContractAddress);
-    this.vesting1ContractInstance = new this.web3Instance!.eth.Contract(
-      config.vesting1ContractABI, config.vesting1ContractAddressRINKEBY);
-    this.vesting2ContractInstance = new this.web3Instance!.eth.Contract(
-      config.vesting2ContractABI, config.vesting2ContractAddressRINKEBY);
-    this.testNFTContractInstance = new this.web3Instance!.eth.Contract(
-      config.testNFTContractABI,
-      config.testNFTContractAddressRINKEBY);
-    this.testERC20ContractInstance = new this.web3Instance!.eth.Contract(
-      config.testERC20ContractABI,
-      config.testERC20ContractAddressRINKEBY);
-    this.testTokenSymbol = await this.testERC20ContractInstance!.methods.symbol().call({ from: this.user, });
-    await this.afterConnectWalletSuccess()
+    if (accounts.length > 0) {
+      this.user = accounts[0]
+      console.log("获取到用户:", this.user)
+      this.web3Instance = new Web3(this.web3Provider as any)
+      // this.coinToolsContractInstance = new this.web3Instance!.eth.Contract(config.coinToolContractAbi, config.coinToolContractAddress);
+      this.vesting1ContractInstance = new this.web3Instance!.eth.Contract(
+        config.vesting1ContractABI, config.vesting1ContractAddressRINKEBY);
+      this.vesting2ContractInstance = new this.web3Instance!.eth.Contract(
+        config.vesting2ContractABI, config.vesting2ContractAddressRINKEBY);
+      this.testNFTContractInstance = new this.web3Instance!.eth.Contract(
+        config.testNFTContractABI,
+        config.testNFTContractAddressRINKEBY);
+      this.testERC20ContractInstance = new this.web3Instance!.eth.Contract(
+        config.testERC20ContractABI,
+        config.testERC20ContractAddressRINKEBY);
+      this.testTokenSymbol = await this.testERC20ContractInstance!.methods.symbol().call({ from: this.user, });
+      await this.afterConnectWalletSuccess()
+    }
   }
 
   private async loop() {
@@ -476,7 +484,7 @@ export default class CommonStore {
       console.log(`nftshares ${nftshares}`);
       console.log(`tokenIds ${tokenIds}`);
 
-      const result = await this.vesting2ContractInstance?.methods.createStream21(
+      const result = await this.vesting2ContractInstance?.methods.createStream2(
         depositAmountInWei.toString(),
         tokenAddr,
         streamStartTime,
@@ -517,6 +525,8 @@ export default class CommonStore {
     }
   }
 
+  @withGlobalLoading()
+  @wrapPromise()
   async withdraw(streamID: number) {
     if (!this.user) {
       Modal.error({
@@ -564,6 +574,57 @@ export default class CommonStore {
     }
   }
 
+  @withGlobalLoading()
+  @wrapPromise()
+  async withdrawByTokenId(streamID: number, tokenId: number) {
+    if (!this.user) {
+      Modal.error({
+        content: "请先连接钱包！！！"
+      })
+      return
+    }
+    const balance = await this.vesting1ContractInstance?.methods.getSingleNFTBalance(streamID, tokenId).call({ from: this.user });
+    if (Number(balance) <= 0) {
+      Modal.error({
+        content: "Error: balance is zero！！！"
+      })
+      return
+    }
+    await this.getStream1Info(streamID);
+    const date: any = new Date();
+    const date1: any = new Date(this.stream1StopTime);
+
+    console.log(Math.round(date1 / 1000))
+    console.log(Math.round(date / 1000))
+    if (Math.round(date / 1000) > Math.round(date1 / 1000)) {
+      Modal.error({
+        content: "Vesting End！！！"
+      })
+      return
+    }
+
+    this.testERC20ContractInstance = new this.web3Instance!.eth.Contract(
+      config.testERC20ContractABI,
+      this.stream1TokenAddress);
+    this.testTokenSymbol = await this.testERC20ContractInstance!.methods.symbol().call({ from: this.user, });
+    // if (amount >= balance) {
+    //   Modal.error({
+    //     content: "amount exceeds the available balance！！！"
+    //   })
+    //   return
+    // }
+    try {
+      const rel = await this.vesting1ContractInstance?.methods.withdrawFromStreamByTokenId(streamID, tokenId).send({ from: this.user });
+      Modal.success({
+        content: "withdraw succeed！！！"
+      })
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  @withGlobalLoading()
+  @wrapPromise()
   async withdraw2(streamID: number) {
     if (!this.user) {
       Modal.error({
@@ -678,7 +739,8 @@ export default class CommonStore {
       console.log(err)
     }
   }
-
+  @withGlobalLoading()
+  @wrapPromise()
   async getStream1Info(streamID: number) {
     // if (!this.user) {
     //   Modal.error({
@@ -724,6 +786,8 @@ export default class CommonStore {
     }
   }
 
+  @withGlobalLoading()
+  @wrapPromise()
   async refreshTestTokenBalance() {
     if (!this.user) {
       Modal.error({
@@ -734,33 +798,35 @@ export default class CommonStore {
     try {
       (async () => {
         // 取余额
-        console.log("取Test Token余额。。。")
+        // console.log("取Test Token余额。。。")
         this.userTestERC20Balance = StringUtil.unShiftedBy_(await Util.timeoutWrapperCall(async () => {
           return await this.testERC20ContractInstance!.methods.balanceOf(this.user).call({ from: this.user, })
         }), 18)
       })();
       (async () => {
         // 取余额
-        console.log("取NFT余额。。。")
+        // console.log("取NFT余额。。。")
         this.userTestNFTBalance = await Util.timeoutWrapperCall(async () => {
           return await this.testNFTContractInstance!.methods.balanceOf(this.user).call({ from: this.user, })
         });
       })();
       (async () => {
         // 取余额
-        console.log("取NFT TokenID。。。")
+        // console.log("取NFT TokenID。。。")
         this.userTestNFTTokenID = await Util.timeoutWrapperCall(async () => {
           return await this.getUserTokenIds();
         });
       })();
-      Modal.success({
-        content: "Refresh!"
-      })
+      // Modal.success({
+      //   content: "Refresh!"
+      // })
     } catch (err) {
       console.log(err)
     }
   }
 
+  @withGlobalLoading()
+  @wrapPromise()
   async getStream2Info(streamID: number) {
     // if (!this.user) {
     //   Modal.error({
@@ -822,6 +888,8 @@ export default class CommonStore {
 
   }
 
+  @withGlobalLoading()
+  @wrapPromise()
   async approveToVesting2Contract(tokenAddr: string) {
     try {
       this.testERC20ContractInstance = new this.web3Instance!.eth.Contract(
@@ -873,24 +941,25 @@ export default class CommonStore {
       call({
         from: this.user,
       });
-    console.log(`NFT Balance: ${balance.toString()}`);
+    // console.log(`NFT Balance: ${balance.toString()}`);
     let ids: string = "[";
     try {
       for (var i = 0; i < parseInt(balance); i++) {
         let tokenid = await this.testNFTContractInstance!.methods.tokenOfOwnerByIndex(this.user, i).call({
           from: this.user,
         });
-        console.log(`toenid: ${tokenid}`);
-        console.log("i:", i);
+        // console.log(`toenid: ${tokenid}`);
+        // console.log("i:", i);
         ids += "#" + tokenid;
         if (i < parseInt(balance) - 1) ids += ", ";
       }
       ids += "]";
-      console.log(ids);
+      // console.log(ids);
       return ids;
     } catch (err) { console.log(`err:${err}`) }
   }
-
+  @withGlobalLoading()
+  @wrapPromise()
   async mintTestNFT() {
     if (!this.user) {
       Modal.error({
@@ -939,6 +1008,8 @@ export default class CommonStore {
     }
   }
 
+  @withGlobalLoading()
+  @wrapPromise()
   async getWithdrawrableStreamBalance(streamID: number) {
     if (!this.user) {
       Modal.error({
@@ -953,6 +1024,32 @@ export default class CommonStore {
       this.stream1TokenAddress);
     this.testTokenSymbol = await this.testERC20ContractInstance!.methods.symbol().call({ from: this.user, });
 
+    this.testNFTContractInstance = new this.web3Instance!.eth.Contract(
+      config.testNFTContractABI,
+      this.stream1Erc721Address);
+
+    const nftBalance = await this.testNFTContractInstance!.methods.balanceOf(this.user).call({ from: this.user, })
+    this.nftWithdrawableBalances = [];
+    this.nftRemainingBalances = [];
+    for (var i = 0; i < Number(this.userTestNFTBalance); i++) {
+      let tokenid = await this.testNFTContractInstance!.methods.tokenOfOwnerByIndex(this.user, i).call({
+        from: this.user,
+      });
+
+      const singleNftBalance = StringUtil.unShiftedBy_(await this.vesting1ContractInstance!.methods.getSingleNFTBalance(
+        streamID, tokenid).call({
+          from: this.user,
+        }), 18);
+
+      const nftRemainingBalance = StringUtil.unShiftedBy_(await this.vesting1ContractInstance!.methods.remainingBalanceByTokenId(streamID, tokenid).call({
+        from: this.user,
+      }), 18);
+
+      this.nftRemainingBalances.push({ tokenid, nftRemainingBalance });
+      this.nftWithdrawableBalances.push({ tokenid, singleNftBalance });
+    }
+    // console.log("nftRemainingBalances:", nftRemainingBalances);
+    // console.log("nftBalances:", nftWithdrawableBalances);
     return StringUtil.unShiftedBy_(await this.vesting1ContractInstance?.methods.balanceOf(streamID, this.user).call({
       from: this.user,
     }), 18);
@@ -970,6 +1067,8 @@ export default class CommonStore {
     })
   }
 
+  @withGlobalLoading()
+  @wrapPromise()
   async getWithdrawrableStream2Balance(stream2ID: number) {
     if (!this.user) {
       Modal.error({
@@ -982,6 +1081,31 @@ export default class CommonStore {
       config.testERC20ContractABI,
       this.stream2TokenAddress);
     this.testTokenSymbol = await this.testERC20ContractInstance!.methods.symbol().call({ from: this.user, });
+
+    this.testNFTContractInstance = new this.web3Instance!.eth.Contract(
+      config.testNFTContractABI,
+      this.stream2Erc721Address);
+
+    const nftBalance = await this.testNFTContractInstance!.methods.balanceOf(this.user).call({ from: this.user, })
+    this.nftWithdrawableBalances2 = [];
+    this.nftRemainingBalances2 = [];
+    for (var i = 0; i < Number(nftBalance); i++) {
+      let tokenid = await this.testNFTContractInstance!.methods.tokenOfOwnerByIndex(this.user, i).call({
+        from: this.user,
+      });
+
+      const singleNftBalance = StringUtil.unShiftedBy_(await this.vesting2ContractInstance!.methods.balanceForTokenId(
+        stream2ID, tokenid).call({
+          from: this.user,
+        }), 18);
+
+      const nftRemainingBalance = StringUtil.unShiftedBy_(await this.vesting2ContractInstance!.methods.remainingBalanceByTokenId(stream2ID, tokenid).call({
+        from: this.user,
+      }), 18);
+
+      this.nftRemainingBalances2.push({ tokenid, nftRemainingBalance });
+      this.nftWithdrawableBalances2.push({ tokenid, singleNftBalance });
+    }
 
     return StringUtil.unShiftedBy_(await this.vesting2ContractInstance?.methods.balanceOf2(stream2ID, this.user).call({
       from: this.user,

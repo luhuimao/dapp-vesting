@@ -54,7 +54,7 @@ li span{width: 30%;}
 li input{width: 60%;}
 
 .wrap{
-  width:550px;
+  width:750px;
   padding-top: 30px;
 }
 .wrap .button-wrap{
@@ -63,20 +63,25 @@ li input{width: 60%;}
 .item{
   height: 30px;
 }
-label{
-  width: 200px;
+.item label{
+  width: 40%;
   display: inline-block;
   text-align: right;
   padding-right: 5px;
   font-weight: bold;
 }
+
+.item button{
+  margin-left: 10px;
+}
 .top input{
-  width:350px;
+  width:60%;
   border-radius: 5px;
   border-width: 1px;
 }
+
 .ant-picker{
-  width:350px;
+  width:450px;
 }
 .top .item{margin-top: 15px; display: flex;}
 #date,#time{

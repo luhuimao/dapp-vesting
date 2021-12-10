@@ -1,7 +1,7 @@
 
 export default {
   rpcUrl: "https://rinkeby.infura.io/v3/04dd3493f83c48de9735b4b29f108b84",
-  vesting1ContractAddressRINKEBY: "0x41363390B92F724680197736D71c26Fb3462574e",
+  vesting1ContractAddressRINKEBY: "0x7490CF0DfC286948501349D88d5582da02193F97",
   vesting1ContractABI: [
     {
       "inputs": [],
@@ -316,6 +316,30 @@ export default {
           "internalType": "uint256",
           "name": "streamId",
           "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "remainingBalanceByTokenId",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "streamId",
+          "type": "uint256"
         }
       ],
       "name": "senderWithdrawFromStream",
@@ -347,9 +371,33 @@ export default {
       ],
       "stateMutability": "nonpayable",
       "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "streamId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "withdrawFromStreamByTokenId",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
     }
   ],
-  vesting2ContractAddressRINKEBY: "0xd1c66b6d958bc0cAd417B93135Eb4FBA1043af9F",
+  vesting2ContractAddressRINKEBY: "0x8b997Ac1A1F526dD13ce4BB68925c3D9B4E65852",
   vesting2ContractABI: [
     {
       "inputs": [],
@@ -438,6 +486,30 @@ export default {
           "type": "uint256"
         },
         {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "balanceForTokenId",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "stream2Id",
+          "type": "uint256"
+        },
+        {
           "internalType": "address",
           "name": "who",
           "type": "address"
@@ -511,7 +583,7 @@ export default {
           "type": "uint256[]"
         }
       ],
-      "name": "createStream21",
+      "name": "createStream2",
       "outputs": [
         {
           "internalType": "uint256",
@@ -614,6 +686,30 @@ export default {
           "internalType": "uint256",
           "name": "stream2Id",
           "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "remainingBalanceByTokenId",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "stream2Id",
+          "type": "uint256"
         }
       ],
       "name": "senderWithdrawFromStream2",
@@ -636,6 +732,30 @@ export default {
         }
       ],
       "name": "withdrawFromStream2",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "stream2Id",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "withdrawFromStream2ByTokenId",
       "outputs": [
         {
           "internalType": "bool",

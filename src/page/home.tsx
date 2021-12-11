@@ -51,7 +51,8 @@ export default class Home extends React.Component<{
       withdrawableBalance: '',
       withdrawableBalance2: '',
       SHARES: '',
-      SELETEDTOKENID: ''
+      SELETEDTOKENID: '',
+      SELETEDTOKENID2: ''
     }
     //vesting1 input event
     this.updateDepositInput = this.updateDepositInput.bind(this);
@@ -382,6 +383,14 @@ export default class Home extends React.Component<{
     // Update the state object
     this.setState({
       SELETEDTOKENID: value
+    });
+  }
+
+  selectHandleChange2(value) {
+    console.log(`selected ${value}`);
+    // Update the state object
+    this.setState({
+      SELETEDTOKENID2: value
     });
   }
 
@@ -816,6 +825,7 @@ export default class Home extends React.Component<{
     } else if (this.props.homeStore!.selectedMenu === "stream2Balance") {
       let _nftWithdrawableBalance: any = null;
       let _nftRemainingBalances: any = null;
+      let _tokenidsDropdown: any = null;
 
       if (this.props.commonStore!.nftWithdrawableBalances2.length > 0) {
         _nftWithdrawableBalance = (
@@ -851,13 +861,26 @@ export default class Home extends React.Component<{
         );
       }
 
+      if (this.props.commonStore!.nftRemainingBalances2.length > 0) {
+        _tokenidsDropdown = (
+          <>
+            {
+              this.props.commonStore!.nftRemainingBalances2.map((data) => {
+                return (
+                  <Option value={data.tokenid}>#{data.tokenid}</Option>
+                )
+              })
+            }
+          </>
+        )
+      }
       return (
         <div className="menu-content">
           <div className="wrap">
             <div className="top">
               <div className="item"><h1>Stream2 Balance</h1></div>
               <div className="item">
-                <label>Stream2 Balance</label>
+                <label>Stream2 Available Balance</label>
                 <input id="" name="" value={this.state.withdrawableBalance2} disabled type="text" />
               </div>
               {_nftWithdrawableBalance}
@@ -866,6 +889,25 @@ export default class Home extends React.Component<{
                 <label>Stream2ID</label>
                 <input type="text" value={this.state.CheckBalanceStream2ID}
                   onChange={this.updateCheckBalanceStream2IDInput.bind(this)} name="name" />
+              </div>
+            </div>
+            <div className="top">
+              <div className="item">
+                <label>TokenId</label>
+                <Select defaultValue="" style={{ width: 300 }} onChange={this.selectHandleChange2.bind(this)}>
+                  {_tokenidsDropdown}
+                </Select>
+                <Button type={`primary`} onClick={async () => {
+                  if (!this.state.CheckBalanceStream2ID || this.state.CheckBalanceStream2ID.length <= 0 ||
+                    !this.state.SELETEDTOKENID2 || this.state.SELETEDTOKENID2.length <= 0) {
+                    alert("StreamID Or TokenId Can't Be Null");
+                    return;
+                  }
+                  await this.props.commonStore!.withdrawByTokenId2(this.state.CheckBalanceStream2ID, this.state.SELETEDTOKENID2);
+                  this.setState({
+                    SELETEDTOKENID2: ""
+                  })
+                }}>Withdraw TokenId</Button>
               </div>
             </div>
             <div style={{

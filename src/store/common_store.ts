@@ -662,6 +662,58 @@ export default class CommonStore {
     }
   }
 
+  @withGlobalLoading()
+  @wrapPromise()
+  async withdrawByTokenId2(streamID: number, tokenId: number) {
+    if (!this.user) {
+      Modal.error({
+        content: "请先连接钱包！！！"
+      })
+      return
+    }
+    const balance = await this.vesting2ContractInstance?.methods.balanceForTokenId(streamID, tokenId).call({ from: this.user });
+    if (Number(balance) <= 0) {
+      Modal.error({
+        content: "Error: balance is zero！！！"
+      })
+      return
+    }
+    await this.getStream2Info(streamID);
+    const date: any = new Date();
+    const date1: any = new Date(this.stream2StopTime);
+
+    console.log(Math.round(date1 / 1000))
+    console.log(Math.round(date / 1000))
+    if (Math.round(date / 1000) > Math.round(date1 / 1000)) {
+      Modal.error({
+        content: "Vesting End！！！"
+      })
+      return
+    }
+
+    this.testERC20ContractInstance = new this.web3Instance!.eth.Contract(
+      config.testERC20ContractABI,
+      this.stream2TokenAddress);
+    this.testTokenSymbol = await this.testERC20ContractInstance!.methods.symbol().call({ from: this.user, });
+    // if (amount >= balance) {
+    //   Modal.error({
+    //     content: "amount exceeds the available balance！！！"
+    //   })
+    //   return
+    // }
+    try {
+      const rel = await this.vesting2ContractInstance?.methods.withdrawFromStream2ByTokenId(streamID, tokenId).send({ from: this.user });
+      Modal.success({
+        content: "withdraw succeed！！！"
+      })
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+
+  @withGlobalLoading()
+  @wrapPromise()
   async senderWithdraw(streamID: number) {
     if (!this.user) {
       Modal.error({
@@ -704,6 +756,8 @@ export default class CommonStore {
     }
   }
 
+  @withGlobalLoading()
+  @wrapPromise()
   async senderWithdraw2(stream2ID: number) {
     if (!this.user) {
       Modal.error({

@@ -17,6 +17,7 @@
     "clipboard": "^2.0.6",
     "mobx": "^5.15.7",
     "mobx-react": "^6.3.0",
+    "moment": "^2.29.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-router-dom": "^5.2.0",
